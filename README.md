@@ -64,11 +64,9 @@ Here's the identity transform in Carrot:
 
     ^(@*|node()) := copy{ ^(@*|node()) };
 
-    ^copy(@*|node()) := copy{ ^#current(@*|node()) };
-
 This recursively copies the input to the output, one node at a time.
 
-Carrot is best understood by example. Here's a Carrot script that creates
+Here's a Carrot script that creates
 an HTML document with dynamic content for its title and body, converting
 `<para>` elements in the input to `<p>` elements in the output:
 
@@ -111,21 +109,12 @@ XSLT:
 
 
 
-
-Why
----
-
 How Carrot compares to XQuery
 -----------------------------
 
 Carrot adds the ability to define rulesets. A *ruleset* is like a function, except
 that you define it differently. With a function, you define it in one place, and 
 then you're done. A ruleset is defined using one or more lexically separate *rules*.
-
-    ^
-
-they always operate on exactly one node at a time. However, you can
-invoke a rule mode
 
 Extensions to XQuery expressions
 --------------------------------
@@ -137,8 +126,7 @@ Carrot adds just three extensions to XQuery's syntax for expressions:
   * text node literals - `` `my text node` ``
 
 
-
 How Carrot compares to XSLT
 ---------------------------
 
-A ruleset is another name for a mode in XSLT.
+A ruleset is another name for a mode in XSLT...
