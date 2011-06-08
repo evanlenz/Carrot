@@ -11,7 +11,7 @@
 
         ^version-list-item-link( version ) := text{@number};
         ^version-list-item-link( version[not(@number eq $api:version)] ) :=
-          <a href="/{@number}">{ ^^next-match() }</a>;
+          <a href="/{@number}">{ ^^next-match() }</a>;  (: unsure about the syntax for next-match... suggestions welcome! :)
 
 ==>
 

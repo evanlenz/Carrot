@@ -151,9 +151,9 @@ $navigation := if ($navigation-cached) then $navigation-cached
                 Download
               </th>
               <th class="size" scope="col">MarkLogic Version Needed</th>
-              <!--
+              (:
               <th class="last" scope="col">Date Posted</th>
-              -->
+              :)
             </tr>
           </thead>
           <tbody>
@@ -161,11 +161,11 @@ $navigation := if ($navigation-cached) then $navigation-cached
           </tbody>
         </table>
       else (),
-      <!--
+      (:
       <div class="action">
         <a href="{contributors/@href}">Contributors</a>
       </div>
-      -->
+      :)
       ^(top-threads);
  
 
@@ -174,9 +174,9 @@ $navigation := if ($navigation-cached) then $navigation-cached
     { if (position() mod 2 eq 1) then attribute class { "alt" } else (),
     <td>
       <a href="{@href}">{ml:file-from-path(@href)}</a>
-      <!--
+      (:
       <a href="{@href}">{^file-from-path(string(@href))}</a>
-      -->
+      :)
     </td>
     <td>{ if (normalize-space(@server-version)) then
              (`MarkLogic Server `,text{@server-version},` or later`) else ()}</td>
