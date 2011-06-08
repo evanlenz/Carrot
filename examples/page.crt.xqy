@@ -1,8 +1,8 @@
-include navigation.xcl;
-include widgets.xcl;
-include comments.xcl;
-include tag-library.xcl;
-include xquery-imports.xcl;
+include navigation.crt;
+include widgets.crt;
+include comments.crt;
+include tag-library.crt;
+include xquery-imports.crt;
 
 output doctype-public := "-//W3C//DTD XHTML 1.0 Strict//EN";
 output doctype-system := "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd";
