@@ -50,7 +50,7 @@
   </div>;
 
      ^event-excerpt( Event ; tunnel $suppress-description) :=
-       <h3>{ ^[title/node()] }</h3>,
+       <h3>{ ^(title/node()) }</h3>,
        if (not($suppress-description)) then ^(description//teaser/node()) else (),
        <dl>{ ^event-details(details/*) }</dl>,
        <a class="more" href="{ml:external-uri(.)}">More information&#160;</a>,
