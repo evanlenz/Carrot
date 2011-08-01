@@ -200,7 +200,7 @@ ExprSingle ::= comment ;
       ExprSingle     ::=  single;
       single ::= 'single';
       -->
-      ExprSingle     ::=      FLWORExpr | ;
+      ExprSingle     ::=      FLWORExpr | literal; <!-- FIXME -->
       <!--
       ExprSingle     ::=      FLWORExpr
 | QuantifiedExpr
@@ -209,19 +209,164 @@ ExprSingle ::= comment ;
 | OrExpr;
 -->
 
-FLWORExpr      ::=      ForLetClauses WhereClauseOpt OrderByClauseOpt return ExprSingle;
+
+FLWORExpr      ::=  ForLetClauses WhereClauseOpt OrderByClauseOpt return ExprSingle;
+
+
 
 ForLetClauses ::= ForLetClauses ForLetClause | ForLetClause;
 ForLetClause ::= ForClause | LetClause;
 WhereClauseOpt ::= WhereClause | ;
 
-OrderByClauseOpt ::= OrderByClause | ;
+ForClause ::= for VarBinding NextForBindingsOpt;
+VarBinding ::= dollar VarName TypeDeclarationOpt PositionalVarOpt in ExprSingle;
+LetClause ::= let LetBinding NextLetBindingsOpt;
 
-return ::= 'return';
+LetBinding ::= dollar VarName TypeDeclarationOpt bindingop ExprSingle;
+bindingop ::= ":=";
+
+
+WhereClause ::= where ExprSingle;
+VarName ::= QName;
 
 for ::= 'for';
+let ::= 'let';
+return ::= 'return';
+where ::= 'where';
 dollar ::= '$';
 in ::= 'in';
+
+TypeDeclarationOpt ::= TypeDeclaration | ;
+TypeDeclaration ::= as SequenceType;
+
+SequenceType ::= EmptySequence | ItemTypeSequence;
+
+EmptySequence ::= empty-sequence lparen rparen;
+empty-sequence ::= 'empty-sequence';
+lparen ::= '(';
+rparen ::= ')';
+
+ItemTypeSequence ::= ItemType OccurrenceIndicatorOpt;
+ItemType ::= KindTest | itemparens | AtomicType ;
+AtomicType ::= QName;
+KindTest ::= 
+  DocumentTest
+| ElementTest
+| AttributeTest
+| SchemaElementTest
+| SchemaAttributeTest
+| PITest
+| CommentTest
+| TextTest
+| AnyKindTest;
+
+itemparens ::= item lparen rparen;
+item ::= "item";
+
+ <!--FIXME-->
+ DocumentTest ::= document-node lparen ElementOrSchemaElementTestOpt rparen;
+ document-node ::= "document-node";
+ ElementOrSchemaElementTestOpt ::= ElementOrSchemaElementTest | ;
+ ElementOrSchemaElementTest ::= ElementTest | SchemaElementTest;
+ ElementTest ::= element lparen ElementAndTypeOpt rparen;
+ ElementAndTypeOpt ::= ElementAndType | ;
+ ElementAndType ::= ElementNameOrWildcard CommaTypeNameOpt;
+ ElementNameOrWildcard ::= ElementName | asterisk;
+ ElementName ::= QName;
+ CommaTypeNameOpt ::= CommaTypeName | ;
+ CommaTypeName ::= comma TypeName QuestionMarkOpt;
+ QuestionMarkOpt ::= questionmark | ;
+ TypeName ::= QName;
+
+ element ::= 'element';
+
+ SchemaElementTest ::= schema-element lparen ElementDeclaration rparen;
+ schema-element ::= 'schema-element';
+ ElementDeclaration ::= ElementName;
+
+ AttributeTest ::= attribute lparen AttributeAndTypeOpt rparen;
+ AttributeAndTypeOpt ::= AttributeAndType | ;
+ AttributeAndType ::= AttribNameOrWildcard AttCommaTypeNameOpt;
+ AttCommaTypeNameOpt ::= AttCommaTypeName | ;
+ AttCommaTypeName ::= comma TypeName;
+ AttribNameOrWildcard ::= AttributeName | asterisk;
+ AttributeName ::= QName;
+
+ attribute ::= 'attribute';
+ SchemaAttributeTest ::= schema-attribute lparen AttributeDeclaration rparen;
+ schema-attribute ::= "schema-attribute";
+ AttributeDeclaration ::= AttributeName;
+
+ PITest ::= processing-instruction lparen NCNameOrStringLiteralOpt rparen;
+ processing-instruction ::= "processing-instruction";
+ NCNameOrStringLiteralOpt ::= NCNameOrStringLiteral | ;
+ NCNameOrStringLiteral ::= ncname | StringLiteral;
+ StringLiteral ::= literal; <!-- for now -->
+
+ CommentTest ::= comment lparen rparen;
+ comment ::= "comment";
+
+ TextTest ::= text lparen rparen;
+ text ::= "text";
+
+ AnyKindTest ::= node lparen rparen;
+ node ::= "node";
+
+OccurrenceIndicatorOpt ::= OccurrenceIndicator | ;
+OccurrenceIndicator ::= questionmark | asterisk | plus;
+questionmark ::= "?";
+asterisk ::= "*";
+plus ::= "+";
+
+as ::= 'as';
+
+PositionalVarOpt ::= PositionalVar | ;
+PositionalVar ::= at dollar QName;
+at ::= 'at';
+
+OrderByClauseOpt ::= OrderByClause | ;
+      OrderByClause      ::= OrderByFlavor OrderSpecList;
+      OrderByFlavor      ::= OrderBy | StableOrderBy;
+      OrderBy            ::= order by;
+          order ::= 'order';
+          by ::= 'by';
+      StableOrderBy      ::= stable order by;
+          stable ::= 'stable';
+      OrderSpecList      ::= OrderSpec CommaOrderSpecListOpt; <!--("," OrderSpec)*;-->
+      CommaOrderSpecListOpt ::= CommaOrderSpecList | ;
+      CommaOrderSpecList ::= CommaOrderSpecList | CommaOrderSpec; 
+      CommaOrderSpec  ::= comma OrderSpec;
+      OrderSpec     ::= ExprSingle OrderModifier;
+
+      OrderModifier ::= AscendingOrDescendingOpt EmptyGreatestLeastOpt CollationSpecOpt;
+      AscendingOrDescendingOpt ::= AscendingOrDescending | ;
+      EmptyGreatestLeastOpt ::= EmptyGreatestLeast | ;
+      CollationSpecOpt ::= CollationSpec | ;
+
+      AscendingOrDescending ::= ascending | descending;
+      ascending ::= "ascending";
+      descending ::= "descending";
+
+      EmptyGreatestLeast ::= empty GreatestOrLeast;
+      empty ::= "empty";
+      GreatestOrLeast ::= greatest | least;
+      greatest ::= "greatest";
+      least ::= 'least';
+
+      CollationSpec ::= collation URILiteralOpt;
+      collation ::= "collation";
+      URILiteralOpt ::= URILiteral | ;
+      URILiteral ::= StringLiteral;
+
+
+NextForBindingsOpt ::= NextForBindings | ;
+NextForBindings ::= NextForBindings NextForBinding | NextForBinding;
+NextForBinding ::= comma VarBinding;
+
+NextLetBindingsOpt ::= NextLetBindings | ;
+NextLetBindings ::= NextLetBindings NextLetBinding | NextLetBinding;
+NextLetBinding ::= comma LetBinding;
+
 
 ncname ::= [1234567890_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-];
 colon ::= ':';
@@ -232,25 +377,6 @@ UnprefixedName ::= LocalPart;
 Prefix ::= ncname;
 LocalPart ::= ncname;
 
-ForClause ::= "for";<!--for dollar QName;-->
-LetClause ::= "let";
-WhereClause ::= "where";
-<!--
-OrderByClause ::= "orderby";
--->
-
-      OrderByClause      ::= OrderByFlavor OrderSpecList;
-      OrderByFlavor      ::= OrderBy | StableOrderBy;
-      OrderBy            ::= order by;
-          order ::= 'order';
-          by ::= 'by';
-      StableOrderBy      ::= stable order by;
-          stable ::= 'stable';
-      OrderSpecList      ::= OrderSpec CommaOrderSpec; <!--("," OrderSpec)*;-->
-      CommaOrderSpec  ::= comma OrderSpec CommaOrderSpec | ;
-      OrderSpec     ::= ExprSingle OrderModifier;
-
-      OrderModifier ::= 'orderModifier';
 
 
       <!--
