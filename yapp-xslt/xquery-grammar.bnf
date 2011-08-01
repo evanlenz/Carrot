@@ -1,0 +1,413 @@
+<?xml version="1.0"?>
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+ |                                                                           |
+ | YAPP XSLT is published under the GNU General Public Licence               |
+ |   (see http://www.gnu.org/licenses/licenses.html#GPL).                    |
+ |                                                                           |
+ | A copy of the licence agreement (gpl.txt) must be part of any             |
+ |   redistribution of any form.                                             |
+ |                                                                           |
+ | YAPP XSLT was created by Martin Klang <mars@pingdynasty.com>.             |
+ |                                                                           |
+ | For usage instructions and more information about YAPP XSLT please see:   |
+ |   http://www.o-xml.org/yapp/                                              |
+ |                                                                           |
+ +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<grammar>
+
+  <!-- quoted string literals -->
+  <terminal name="literal">
+    <delimited>
+      <begin>'</begin>
+      <end>'</end>
+    </delimited>
+    <delimited>
+      <begin>"</begin>
+      <end>"</end>
+    </delimited>
+  </terminal>
+
+  <!-- node test -->
+  <terminal name="processingInstruction">
+    <delimited>
+      <begin>processing-instruction(</begin>
+      <end>)</end>
+    </delimited>
+  </terminal>
+
+  <terminal name="end">
+    <end/>
+  </terminal>
+
+  <ignore char=" "/>
+
+  <bnf>
+  <!--
+  ncname ::= [1234567890_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ#-];
+
+  slash ::= '/' ;
+
+  slashslash ::= '//' ;
+
+  dot ::= '.' ;
+
+  dotdot ::= '..' ;
+
+  at ::= '@' ;
+
+  colon ::= ':' ;
+
+  lparen ::= '(' ;
+
+  rparen ::= ')' ;
+
+  lbrack ::= '[' ;
+
+  rbrack ::= ']' ;
+
+  asterisk ::= '*' ;
+
+  <!- - logical operators - ->
+
+  or ::= 'or' ;
+
+  and ::= 'and' ;
+
+  <!- - arithmetical operators - ->
+
+  div ::= 'div' ;
+
+  mod ::= 'mod' ;
+
+  minus ::= '-' ;
+
+  plus ::= '+' ;
+
+  <!- - equality operators - ->
+
+  equalityOperator ::= '=' | '!=' ;
+
+  <!- - relational operators - ->
+
+  relationalOperator ::= '&lt;' | '&lt;=' | '&gt;' | '&gt;=' ;
+
+  axisName ::= 'ancestor::'
+             | 'ancestor-or-self::'
+             | 'attribute::'
+             | 'child::'
+             | 'descendant::'
+             | 'descendant-or-self::'
+             | 'following::'
+             | 'following-sibling::'
+             | 'namespace::'
+             | 'parent::'
+             | 'preceding::'
+             | 'preceding-sibling::'
+             | 'self::' ;
+
+  <!- - node tests - ->
+
+  comment ::= 'comment()' ;
+  text ::= 'text()' ;
+  node ::= 'node()' ;
+
+
+  <!- - non-terminals - ->
+
+  <!- - start symbol - ->
+
+  <!- -
+  Expr ::= LocationPath end;
+  - ->
+
+  LocationPath ::= RelativeLocationPath
+                 | AbsoluteLocationPath;
+
+  AbsoluteLocationPath ::= slash RelativeLocationPath
+                         | slashslash RelativeLocationPath
+                         | slash ;
+
+  RelativeLocationPath ::= RelativeLocationPath slash Step
+                         | RelativeLocationPath slashslash Step
+                         | Step;
+
+  Step ::= AxisSpecifier NodeTest 
+         | AbbreviatedStep ;
+  <!- - AxisSpecifier NodeTest PredicateList - ->
+
+  AxisSpecifier ::= axisName
+                  | at
+                  | ;
+
+  AbbreviatedStep ::= dot 
+                    | dotdot;
+
+  NodeTest ::= NameTest
+             | NodeType;
+
+  NodeType ::= node
+             | text
+             | comment
+             | processingInstruction;
+
+  NameTest ::= ncname;
+  -->
+
+<!--
+Module     ::=      VersionDecl? (LibraryModule | MainModule);
+     VersionDecl      ::=      "xquery" "version" StringLiteral ("encoding" StringLiteral)? Separator;
+     MainModule     ::=      Prolog QueryBody;
+     LibraryModule      ::=      ModuleDecl Prolog;
+     ModuleDecl     ::=      "module" "namespace" NCName "=" URILiteral Separator;
+     Prolog     ::=      ((DefaultNamespaceDecl | Setter | NamespaceDecl | Import) Separator)* ((VarDecl | FunctionDecl | OptionDecl) Separator)*;
+     Setter     ::=      BoundarySpaceDecl | DefaultCollationDecl | BaseURIDecl | ConstructionDecl | OrderingModeDecl | EmptyOrderDecl | CopyNamespacesDecl;
+     Import     ::=      SchemaImport | ModuleImport;
+     Separator      ::=      ";";
+      NamespaceDecl      ::=      "declare" "namespace" NCName "=" URILiteral;
+      BoundarySpaceDecl      ::=      "declare" "boundary-space" ("preserve" | "strip");
+      DefaultNamespaceDecl     ::=      "declare" "default" ("element" | "function") "namespace" URILiteral;
+      OptionDecl     ::=      "declare" "option" QName StringLiteral;
+      OrderingModeDecl     ::=      "declare" "ordering" ("ordered" | "unordered");
+      EmptyOrderDecl     ::=      "declare" "default" "order" "empty" ("greatest" | "least");
+      CopyNamespacesDecl     ::=      "declare" "copy-namespaces" PreserveMode "," InheritMode;
+      PreserveMode     ::=      "preserve" | "no-preserve";
+      InheritMode      ::=      "inherit" | "no-inherit";
+      DefaultCollationDecl     ::=      "declare" "default" "collation" URILiteral;
+      BaseURIDecl      ::=      "declare" "base-uri" URILiteral;
+      SchemaImport     ::=      "import" "schema" SchemaPrefix? URILiteral ("at" URILiteral ("," URILiteral)*)?;
+      SchemaPrefix     ::=      ("namespace" NCName "=") | ("default" "element" "namespace");
+      ModuleImport     ::=      "import" "module" ("namespace" NCName "=")? URILiteral ("at" URILiteral ("," URILiteral)*)?;
+      VarDecl      ::=      "declare" "variable" "$" QName TypeDeclaration? ((":=" ExprSingle) | "external");
+      ConstructionDecl     ::=      "declare" "construction" ("strip" | "preserve");
+      FunctionDecl     ::=      "declare" "function" QName "(" ParamList? ")" ("as" SequenceType)? (EnclosedExpr | "external");
+      ParamList      ::=      Param ("," Param)*;
+      Param      ::=      "$" QName TypeDeclaration?;
+      EnclosedExpr     ::=      "{" Expr "}";
+      QueryBody      ::=      Expr;
+      -->
+
+      Expr            ::= ExprSingle CommaExprSingle;<!-- end;-->
+
+      CommaExprSingle ::= comma ExprSingle CommaExprSingle | ;
+
+  comma ::= ',' ;
+
+<!-- not really, just testing -->
+<!--
+ExprSingle ::= comment ;
+-->
+      <!--
+      ExprSingle     ::=  single;
+      single ::= 'single';
+      -->
+      ExprSingle     ::=      FLWORExpr | ;
+      <!--
+      ExprSingle     ::=      FLWORExpr
+| QuantifiedExpr
+| TypeswitchExpr
+| IfExpr
+| OrExpr;
+-->
+
+FLWORExpr      ::=      ForLetClauses WhereClauseOpt OrderByClauseOpt return ExprSingle;
+
+ForLetClauses ::= ForLetClauses ForLetClause | ForLetClause;
+ForLetClause ::= ForClause | LetClause;
+WhereClauseOpt ::= WhereClause | ;
+
+OrderByClauseOpt ::= OrderByClause | ;
+
+return ::= 'return';
+
+for ::= 'for';
+dollar ::= '$';
+in ::= 'in';
+
+ncname ::= [1234567890_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-];
+colon ::= ':';
+
+QName ::= PrefixedName | UnprefixedName;
+PrefixedName ::= Prefix colon LocalPart;
+UnprefixedName ::= LocalPart;
+Prefix ::= ncname;
+LocalPart ::= ncname;
+
+ForClause ::= "for";<!--for dollar QName;-->
+LetClause ::= "let";
+WhereClause ::= "where";
+<!--
+OrderByClause ::= "orderby";
+-->
+
+      OrderByClause      ::= OrderByFlavor OrderSpecList;
+      OrderByFlavor      ::= OrderBy | StableOrderBy;
+      OrderBy            ::= order by;
+          order ::= 'order';
+          by ::= 'by';
+      StableOrderBy      ::= stable order by;
+          stable ::= 'stable';
+      OrderSpecList      ::= OrderSpec CommaOrderSpec; <!--("," OrderSpec)*;-->
+      CommaOrderSpec  ::= comma OrderSpec CommaOrderSpec | ;
+      OrderSpec     ::= ExprSingle OrderModifier;
+
+      OrderModifier ::= 'orderModifier';
+
+
+      <!--
+      ForClause      ::=      "for" "$" VarName TypeDeclaration? PositionalVar? "in" ExprSingle ("," "$" VarName TypeDeclaration? PositionalVar? "in" ExprSingle)*;
+      PositionalVar      ::=      "at" "$" VarName;
+      LetClause      ::=      "let" "$" VarName TypeDeclaration? ":=" ExprSingle ("," "$" VarName TypeDeclaration? ":=" ExprSingle)*;
+      WhereClause      ::=      "where" ExprSingle;
+      OrderByClause      ::=      (("order" "by") | ("stable" "order" "by")) OrderSpecList;
+      OrderSpecList      ::=      OrderSpec ("," OrderSpec)*;
+      OrderSpec      ::=      ExprSingle OrderModifier;
+      OrderModifier      ::=      ("ascending" | "descending")? ("empty" ("greatest" | "least"))? ("collation" URILiteral)?;
+      QuantifiedExpr     ::=      ("some" | "every") "$" VarName TypeDeclaration? "in" ExprSingle ("," "$" VarName TypeDeclaration? "in" ExprSingle)* "satisfies" ExprSingle;
+      TypeswitchExpr     ::=      "typeswitch" "(" Expr ")" CaseClause+ "default" ("$" VarName)? "return" ExprSingle;
+      CaseClause     ::=      "case" ("$" VarName "as")? SequenceType "return" ExprSingle;
+      IfExpr     ::=      "if" "(" Expr ")" "then" ExprSingle "else" ExprSingle;
+      OrExpr     ::=      AndExpr ( "or" AndExpr )*;
+      AndExpr      ::=      ComparisonExpr ( "and" ComparisonExpr )*;
+      ComparisonExpr     ::=      RangeExpr ( (ValueComp
+| GeneralComp
+| NodeComp) RangeExpr )?;
+      RangeExpr      ::=      AdditiveExpr ( "to" AdditiveExpr )?;
+      AdditiveExpr     ::=      MultiplicativeExpr ( ("+" | "-") MultiplicativeExpr )*;
+      MultiplicativeExpr     ::=      UnionExpr ( ("*" | "div" | "idiv" | "mod") UnionExpr )*;
+      UnionExpr      ::=      IntersectExceptExpr ( ("union" | "|") IntersectExceptExpr )*;
+      IntersectExceptExpr      ::=      InstanceofExpr ( ("intersect" | "except") InstanceofExpr )*;
+      InstanceofExpr     ::=      TreatExpr ( "instance" "of" SequenceType )?;
+      TreatExpr      ::=      CastableExpr ( "treat" "as" SequenceType )?;
+      CastableExpr     ::=      CastExpr ( "castable" "as" SingleType )?;
+      CastExpr     ::=      UnaryExpr ( "cast" "as" SingleType )?;
+      UnaryExpr      ::=      ("-" | "+")* ValueExpr;
+      ValueExpr      ::=      ValidateExpr | PathExpr | ExtensionExpr;
+      GeneralComp      ::=      "=" | "!=" | "&lt; | "&lt;=" | ">" | ">=";
+      ValueComp      ::=      "eq" | "ne" | "lt" | "le" | "gt" | "ge";
+      NodeComp     ::=      "is" | "&lt;&lt;" | ">>";
+      ValidateExpr     ::=      "validate" ValidationMode? "{" Expr "}";
+      ValidationMode     ::=      "lax" | "strict";
+      ExtensionExpr      ::=      Pragma+ "{" Expr? "}";
+      Pragma     ::=      "(#" S? QName (S PragmaContents)? "#)"  /* ws: explicit */;
+      PragmaContents     ::=      (Char* - (Char* '#)' Char*));
+      PathExpr     ::=      ("/" RelativePathExpr?)
+| ("//" RelativePathExpr)
+| RelativePathExpr  /* xgs: leading-lone-slash */;
+      RelativePathExpr     ::=      StepExpr (("/" | "//") StepExpr)*;
+      StepExpr     ::=      FilterExpr | AxisStep;
+      AxisStep     ::=      (ReverseStep | ForwardStep) PredicateList;
+      ForwardStep      ::=      (ForwardAxis NodeTest) | AbbrevForwardStep;
+      ForwardAxis      ::=      ("child" "::")
+| ("descendant" "::")
+| ("attribute" "::")
+| ("self" "::")
+| ("descendant-or-self" "::")
+| ("following-sibling" "::")
+| ("following" "::");
+      AbbrevForwardStep      ::=      "@"? NodeTest;
+      ReverseStep      ::=      (ReverseAxis NodeTest) | AbbrevReverseStep;
+      ReverseAxis      ::=      ("parent" "::")
+| ("ancestor" "::")
+| ("preceding-sibling" "::")
+| ("preceding" "::")
+| ("ancestor-or-self" "::");
+      AbbrevReverseStep      ::=      "..";
+      NodeTest     ::=      KindTest | NameTest;
+      NameTest     ::=      QName | Wildcard;
+      Wildcard     ::=      "*"
+| (NCName ":" "*")
+| ("*" ":" NCName)  /* ws: explicit */;
+      FilterExpr     ::=      PrimaryExpr PredicateList;
+      PredicateList      ::=      Predicate*;
+      Predicate      ::=      "[" Expr "]";
+      PrimaryExpr      ::=      Literal | VarRef | ParenthesizedExpr | ContextItemExpr | FunctionCall | OrderedExpr | UnorderedExpr | Constructor;
+      Literal      ::=      NumericLiteral | StringLiteral;
+      NumericLiteral     ::=      IntegerLiteral | DecimalLiteral | DoubleLiteral;
+      VarRef     ::=      "$" VarName;
+      VarName      ::=      QName;
+      ParenthesizedExpr      ::=      "(" Expr? ")";
+      ContextItemExpr      ::=      ".";
+      OrderedExpr      ::=      "ordered" "{" Expr "}";
+      UnorderedExpr      ::=      "unordered" "{" Expr "}";
+      FunctionCall     ::=      QName "(" (ExprSingle ("," ExprSingle)*)? ")"   /* xgs: reserved-function-names */;
+        /* gn: parens */
+      Constructor      ::=      DirectConstructor
+| ComputedConstructor;
+      DirectConstructor      ::=      DirElemConstructor
+| DirCommentConstructor
+| DirPIConstructor;
+      DirElemConstructor     ::=      "&lt;" QName DirAttributeList ("/>" | (">" DirElemContent* "&lt;/" QName S? ">"))   /* ws: explicit */;
+      DirAttributeList     ::=      (S (QName S? "=" S? DirAttributeValue)?)*   /* ws: explicit */;
+      DirAttributeValue      ::=      ('"' (EscapeQuot | QuotAttrValueContent)* '"')
+| ("'" (EscapeApos | AposAttrValueContent)* "'")  /* ws: explicit */;
+      QuotAttrValueContent     ::=      QuotAttrContentChar
+| CommonContent;
+     AposAttrValueContent     ::=      AposAttrContentChar
+| CommonContent;
+     DirElemContent     ::=      DirectConstructor
+| CDataSection
+| CommonContent
+| ElementContentChar;
+     CommonContent      ::=      PredefinedEntityRef | CharRef | "{{" | "}}" | EnclosedExpr;
+     DirCommentConstructor      ::=      "&lt;!- -" DirCommentContents "- ->"   /* ws: explicit */;
+     DirCommentContents     ::=      ((Char - '-') | ('-' (Char - '-')))*  /* ws: explicit */;
+     DirPIConstructor     ::=      "&lt;?" PITarget (S DirPIContents)? "?>"   /* ws: explicit */;
+     DirPIContents      ::=      (Char* - (Char* '?>' Char*))  /* ws: explicit */;
+     CDataSection     ::=      "&lt;![CDATA[" CDataSectionContents "]]&gt;"  /* ws: explicit */;
+     CDataSectionContents     ::=      (Char* - (Char* ']]&gt;' Char*))   /* ws: explicit */;
+     ComputedConstructor      ::=      CompDocConstructor
+| CompElemConstructor
+| CompAttrConstructor
+| CompTextConstructor
+| CompCommentConstructor
+| CompPIConstructor;
+     CompDocConstructor     ::=      "document" "{" Expr "}";
+     CompElemConstructor      ::=      "element" (QName | ("{" Expr "}")) "{" ContentExpr? "}";
+     ContentExpr      ::=      Expr;
+     CompAttrConstructor      ::=      "attribute" (QName | ("{" Expr "}")) "{" Expr? "}";
+     CompTextConstructor      ::=      "text" "{" Expr "}";
+     CompCommentConstructor     ::=      "comment" "{" Expr "}";
+     CompPIConstructor      ::=      "processing-instruction" (NCName | ("{" Expr "}")) "{" Expr? "}";
+     SingleType     ::=      AtomicType "?"?;
+     TypeDeclaration      ::=      "as" SequenceType;
+     SequenceType     ::=      ("empty-sequence" "(" ")")
+| (ItemType OccurrenceIndicator?);
+     OccurrenceIndicator      ::=      "?" | "*" | "+"   /* xgs: occurrence-indicators */;
+     ItemType     ::=      KindTest | ("item" "(" ")") | AtomicType;
+     AtomicType     ::=      QName;
+     KindTest     ::=      DocumentTest
+| ElementTest
+| AttributeTest
+| SchemaElementTest
+| SchemaAttributeTest
+| PITest
+| CommentTest
+| TextTest
+| AnyKindTest;
+     AnyKindTest      ::=      "node" "(" ")";
+     DocumentTest     ::=      "document-node" "(" (ElementTest | SchemaElementTest)? ")";
+     TextTest     ::=      "text" "(" ")";
+     CommentTest      ::=      "comment" "(" ")";
+     PITest     ::=      "processing-instruction" "(" (NCName | StringLiteral)? ")";
+     AttributeTest      ::=      "attribute" "(" (AttribNameOrWildcard ("," TypeName)?)? ")";
+     AttribNameOrWildcard     ::=      AttributeName | "*";
+     SchemaAttributeTest      ::=      "schema-attribute" "(" AttributeDeclaration ")";
+     AttributeDeclaration     ::=      AttributeName;
+     ElementTest      ::=      "element" "(" (ElementNameOrWildcard ("," TypeName "?"?)?)? ")";
+     ElementNameOrWildcard      ::=      ElementName | "*";
+     SchemaElementTest      ::=      "schema-element" "(" ElementDeclaration ")";
+     ElementDeclaration     ::=      ElementName;
+     AttributeName      ::=      QName;
+     ElementName      ::=      QName;
+     TypeName     ::=      QName;
+     URILiteral     ::=      StringLiteral;
+     -->
+
+
+  </bnf>
+
+  <import href="xquery-lexer.xsl"/>
+
+  <import href="xpath-templates.xsl"/>
+
+</grammar>
