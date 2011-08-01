@@ -1,0 +1,249 @@
+<?xml version="1.0"?>
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+ |                                                                           |
+ | YAPP XSLT is published under the GNU General Public Licence               |
+ |   (see http://www.gnu.org/licenses/licenses.html#GPL).                    |
+ |                                                                           |
+ | A copy of the licence agreement (gpl.txt) must be part of any             |
+ |   redistribution of any form.                                             |
+ |                                                                           |
+ | YAPP XSLT was created by Martin Klang <mars@pingdynasty.com>.             |
+ |                                                                           |
+ | For usage instructions and more information about YAPP XSLT please see:   |
+ |   http://www.o-xml.org/yapp/                                              |
+ |                                                                           |
+ +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<grammar>
+
+  <ignore char=" "/>
+  <ignore char="&#9;"/><!-- tab -->
+  <ignore char="&#10;"/><!-- linefeed -->
+
+  <!-- include lexer -->
+  <import href="bnf-lexer.xsl"/>
+
+  <terminal name="end">
+    <!-- only allow one end -->
+    <end/>
+  </terminal>
+
+  <!-- patterns -->
+  <terminal name="number">
+    <any>.-0123456789</any>
+  </terminal>
+  <terminal name="name">
+    <any>1234567890_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ#-</any>
+  </terminal>
+
+  <terminal name="pattern">
+    <delimited>
+      <begin>[</begin>
+      <end>]</end>
+    </delimited>
+  </terminal>
+
+  <!-- quoted string literals -->
+  <terminal name="literal">
+    <delimited>
+      <begin>'</begin>
+      <end>'</end>
+    </delimited>
+    <delimited>
+      <begin>"</begin>
+      <end>"</end>
+    </delimited>
+  </terminal>
+
+  <terminal name="def">
+    <equals>::=</equals>
+  </terminal>
+
+  <terminal name="bar">
+    <equals>|</equals>
+  </terminal>
+
+  <terminal name="semicolon">
+    <equals>;</equals>
+  </terminal>
+
+  <!-- grouping -->
+  <!--
+  <terminal name="lparen">
+    <equals>(</equals>
+  </terminal>
+  <terminal name="rparen">
+    <equals>)</equals>
+  </terminal>
+
+  <terminal name="langle">
+    <equals>[</equals>
+  </terminal>
+  <terminal name="rangle">
+    <equals>]</equals>
+  </terminal>
+  -->
+  <!-- multipliers -->
+  <terminal name="plus">
+    <equals>+</equals>
+  </terminal>
+  <terminal name="asterisk">
+    <equals>*</equals>
+  </terminal>
+  <terminal name="question">
+    <equals>?</equals>
+  </terminal>
+
+  <construct name="Grammar">
+    <option>
+      <part name="Rules"/>
+      <part name="end"/>
+    </option>
+  </construct>
+
+  <construct name="Rules">
+    <option>
+      <part name="Rule"/>
+      <part name="Rules"/>
+    </option>
+    <option>
+      <!-- empty -->
+    </option>
+  </construct>
+
+  <construct name="Rule">
+    <option>
+      <part name="name"/>
+      <part name="def"/>
+      <part name="Definition"/>
+      <part name="Definitions"/>
+      <part name="semicolon"/>
+    </option>
+  </construct>
+
+  <construct name="Definitions">
+    <option>
+      <part name="bar"/>
+      <part name="Definition"/>
+      <part name="Definitions"/>
+    </option>
+    <option>
+      <!-- empty -->
+    </option>
+  </construct>
+
+
+  <construct name="Definition">
+    <option>
+      <part name="Terms"/>
+    </option>
+  </construct>
+
+  <construct name="Terms">
+    <option>
+      <part name="Term"/>
+      <part name="Terms"/>
+    </option>
+    <option>
+      <!-- empty -->
+    </option>
+  </construct>
+
+  <construct name="Term">
+    <option>
+      <part name="name"/>
+    </option>
+    <option>
+      <part name="Terminal"/>
+    </option>
+  </construct>
+
+  <construct name="Terminal">
+    <option>
+      <part name="literal"/>
+    </option>
+    <option>
+      <part name="pattern"/>
+    </option>
+  </construct>
+
+  <templates xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+    <xsl:template match="node()|@*">
+      <xsl:copy>
+        <xsl:apply-templates select="@*"/>
+        <xsl:apply-templates/>
+      </xsl:copy>
+    </xsl:template>
+
+    <xsl:template match="bnf">
+      <!-- three-pass processing -->
+      <xsl:variable name="parsed">
+        <!-- parse the bnf grammar -->
+        <xsl:call-template name="p:Grammar">
+          <xsl:with-param name="in" select="."/>
+        </xsl:call-template>
+      </xsl:variable>
+      <xsl:variable name="grammar">
+        <!-- turn 'term' elements into something more useful -->
+        <xsl:apply-templates select="xalan:nodeset($parsed)/term" mode="rewrite"/>
+      </xsl:variable>
+      <!-- turn productions into grammar -->
+      <xsl:apply-templates select="xalan:nodeset($grammar)" mode="generate"/>
+
+    </xsl:template>
+
+    <xsl:template match="term[*]" mode="rewrite">
+      <xsl:element name="{@name}">
+        <xsl:apply-templates mode="rewrite"/>
+      </xsl:element>
+    </xsl:template>
+
+    <xsl:template match="term" mode="rewrite">
+      <xsl:element name="{@name}">
+        <xsl:value-of select="."/>
+      </xsl:element>
+    </xsl:template>
+
+    <xsl:template match="text()" mode="generate"/>
+
+    <xsl:template match="Grammar" mode="generate">
+        <xsl:apply-templates mode="generate"/>
+    </xsl:template>
+
+    <!-- constructs -->
+    <xsl:template match="Rule" mode="generate">
+      <construct name="{name}">
+        <xsl:apply-templates mode="generate"/>
+      </construct>
+    </xsl:template>
+
+    <xsl:template match="Definition" mode="generate">
+      <option>
+        <xsl:apply-templates mode="generate"/>
+      </option>
+    </xsl:template>
+
+    <xsl:template match="Term[name]" mode="generate">
+      <part name="{name}"/>
+    </xsl:template>
+
+    <!-- terminals -->
+    <xsl:template match="Rule[descendant::Terminal]" mode="generate">
+      <terminal name="{name}">
+        <xsl:apply-templates select="descendant::Terminal" mode="generate"/>
+      </terminal>
+    </xsl:template>
+
+    <xsl:template match="pattern" mode="generate">
+      <any><xsl:value-of select="."/></any>
+    </xsl:template>
+
+    <xsl:template match="literal" mode="generate">
+      <equals>
+        <xsl:value-of select="."/>
+      </equals>
+    </xsl:template>
+
+  </templates>
+
+</grammar>

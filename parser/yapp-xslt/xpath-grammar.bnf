@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+ |                                                                           |
+ | YAPP XSLT is published under the GNU General Public Licence               |
+ |   (see http://www.gnu.org/licenses/licenses.html#GPL).                    |
+ |                                                                           |
+ | A copy of the licence agreement (gpl.txt) must be part of any             |
+ |   redistribution of any form.                                             |
+ |                                                                           |
+ | YAPP XSLT was created by Martin Klang <mars@pingdynasty.com>.             |
+ |                                                                           |
+ | For usage instructions and more information about YAPP XSLT please see:   |
+ |   http://www.o-xml.org/yapp/                                              |
+ |                                                                           |
+ +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+<grammar>
+
+  <!-- quoted string literals -->
+  <terminal name="literal">
+    <delimited>
+      <begin>'</begin>
+      <end>'</end>
+    </delimited>
+    <delimited>
+      <begin>"</begin>
+      <end>"</end>
+    </delimited>
+  </terminal>
+
+  <!-- node test -->
+  <terminal name="processingInstruction">
+    <delimited>
+      <begin>processing-instruction(</begin>
+      <end>)</end>
+    </delimited>
+  </terminal>
+
+  <terminal name="end">
+    <end/>
+  </terminal>
+
+  <ignore char=" "/>
+
+  <bnf>
+
+  <!-- terminals -->
+
+  ncname ::= [1234567890_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ#-];
+
+  slash ::= '/' ;
+
+  slashslash ::= '//' ;
+
+  dot ::= '.' ;
+
+  dotdot ::= '..' ;
+
+  at ::= '@' ;
+
+  colon ::= ':' ;
+
+  lparen ::= '(' ;
+
+  rparen ::= ')' ;
+
+  lbrack ::= '[' ;
+
+  rbrack ::= ']' ;
+
+  asterisk ::= '*' ;
+
+  <!-- logical operators -->
+
+  or ::= 'or' ;
+
+  and ::= 'and' ;
+
+  <!-- arithmetical operators -->
+
+  div ::= 'div' ;
+
+  mod ::= 'mod' ;
+
+  minus ::= '-' ;
+
+  plus ::= '+' ;
+
+  <!-- equality operators -->
+
+  equalityOperator ::= '=' | '!=' ;
+
+  <!-- relational operators -->
+
+  relationalOperator ::= '&lt;' | '&lt;=' | '&gt;' | '&gt;=' ;
+
+  axisName ::= 'ancestor::'
+             | 'ancestor-or-self::'
+             | 'attribute::'
+             | 'child::'
+             | 'descendant::'
+             | 'descendant-or-self::'
+             | 'following::'
+             | 'following-sibling::'
+             | 'namespace::'
+             | 'parent::'
+             | 'preceding::'
+             | 'preceding-sibling::'
+             | 'self::' ;
+
+  <!-- node tests -->
+
+  comment ::= 'comment()' ;
+  text ::= 'text()' ;
+  node ::= 'node()' ;
+
+  <!-- non-terminals -->
+
+  <!-- start symbol -->
+
+  Expr ::= LocationPath end;
+
+  LocationPath ::= RelativeLocationPath
+                 | AbsoluteLocationPath;
+
+  AbsoluteLocationPath ::= slash RelativeLocationPath
+                         | slashslash RelativeLocationPath
+                         | slash ;
+
+  RelativeLocationPath ::= RelativeLocationPath slash Step
+                         | RelativeLocationPath slashslash Step
+                         | Step;
+
+  Step ::= AxisSpecifier NodeTest 
+         | AbbreviatedStep ;
+  <!-- AxisSpecifier NodeTest PredicateList -->
+
+  AxisSpecifier ::= axisName
+                  | at
+                  | ;
+
+  AbbreviatedStep ::= dot 
+                    | dotdot;
+
+  NodeTest ::= NameTest
+             | NodeType;
+
+  NodeType ::= node
+             | text
+             | comment
+             | processingInstruction;
+
+  NameTest ::= ncname;
+
+  </bnf>
+
+  <import href="xpath-lexer.xsl"/>
+
+  <import href="xpath-templates.xsl"/>
+
+</grammar>
