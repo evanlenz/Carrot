@@ -15,6 +15,7 @@
  +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
   xmlns:xalan="http://xml.apache.org/xalan"
+  xmlns:exsl="http://exslt.org/common"
   xmlns:tns="urn:out"
   xmlns:t="http://www.pingdynasty.com/namespaces/tokenizer"
   xmlns:p="http://www.pingdynasty.com/namespaces/parser"
@@ -84,12 +85,12 @@
       <xsl:apply-templates select="part" mode="content"/>
     </tns:variable>
     <tns:choose>
-      <tns:when test="count(xalan:nodeset($option{$title})/term) = {count(part)}">
+      <tns:when test="count(exsl:node-set($option{$title})/term) = {count(part)}">
         <term name="{../@name}">
-          <tns:copy-of select="xalan:nodeset($option{$title})/term"/>
+          <tns:copy-of select="exsl:node-set($option{$title})/term"/>
         </term>
         <remainder>
-          <tns:value-of select="xalan:nodeset($option{$title})/remainder[{count(part)}]"/>
+          <tns:value-of select="exsl:node-set($option{$title})/remainder[{count(part)}]"/>
         </remainder>
       </tns:when>
       <tns:otherwise>
@@ -115,21 +116,21 @@
         <tns:with-param name="in" select="$in"/>
       </tns:call-template>
     </tns:variable>
-    <tns:copy-of select="xalan:nodeset($part{position()})"/>
+    <tns:copy-of select="exsl:node-set($part{position()})"/>
   </xsl:template>
 
   <!-- middle or last part -->
   <xsl:template match="part[preceding-sibling::part]" mode="content">
     <xsl:comment> and part <xsl:value-of select="@name"/></xsl:comment>
       <tns:variable name="part{position()}">
-        <tns:if test="xalan:nodeset($part{position() - 1})/remainder">
+        <tns:if test="exsl:node-set($part{position() - 1})/remainder">
           <tns:call-template name="p:{@name}">
             <tns:with-param name="in" 
-              select="xalan:nodeset($part{position() - 1})/remainder"/>
+              select="exsl:node-set($part{position() - 1})/remainder"/>
           </tns:call-template>
         </tns:if>
       </tns:variable>
-      <tns:copy-of select="xalan:nodeset($part{position()})"/>
+      <tns:copy-of select="exsl:node-set($part{position()})"/>
   </xsl:template>
       
   <xsl:template match="terminal">
@@ -143,15 +144,15 @@
           <tns:with-param name="in" select="$in"/>
         </tns:call-template>
       </tns:variable>
-      <tns:if test="xalan:nodeset($token)/token/@type='{@name}'">
+      <tns:if test="exsl:node-set($token)/token/@type='{@name}'">
         <!-- <tns:message>
           <xsl:value-of select="@name"/> matches {<tns:value-of select="xalan:nodeset($token)/token"/>}
         </tns:message>-->
         <term name="{@name}">
-          <tns:value-of select="xalan:nodeset($token)/token"/>
+          <tns:value-of select="exsl:node-set($token)/token"/>
         </term>
         <remainder>
-          <tns:value-of select="xalan:nodeset($token)/remainder"/>
+          <tns:value-of select="exsl:node-set($token)/remainder"/>
         </remainder>
       </tns:if>
     </tns:template>

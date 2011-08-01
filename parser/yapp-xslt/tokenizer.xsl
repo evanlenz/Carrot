@@ -18,6 +18,7 @@
 ]>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
   xmlns:xalan="http://xml.apache.org/xalan"
+  xmlns:exsl="http://exslt.org/common"
   xmlns:tns="urn:out"
   xmlns:t="http://www.pingdynasty.com/namespaces/tokenizer"
   exclude-result-prefixes="xalan">
@@ -158,7 +159,7 @@
         <xsl:text>')</xsl:text>
       </xsl:variable>
       <tns:variable name="matches">
-        <tns:for-each select="xalan:nodeset($t:patterns)/pattern">
+        <tns:for-each select="exsl:node-set($t:patterns)/pattern">
           <tns:sort select="string-length({$expr})"
             data-type="number" order="descending"/>
           <pattern>
@@ -167,8 +168,8 @@
           </pattern>
         </tns:for-each>
       </tns:variable>
-      <tns:variable name="token" select="xalan:nodeset($matches)/pattern[1]/match"/>
-      <tns:variable name="name" select="xalan:nodeset($matches)/pattern[1]/name"/>
+      <tns:variable name="token" select="exsl:node-set($matches)/pattern[1]/match"/>
+      <tns:variable name="name" select="exsl:node-set($matches)/pattern[1]/name"/>
       <tns:if test="$token">
         <token>
           <xsl:attribute name="type">{$name}</xsl:attribute>
@@ -187,10 +188,10 @@
           <tns:with-param name="in" select="$in"/>
         </tns:call-template>
       </tns:variable>
-      <tns:copy-of select="xalan:nodeset($token)/token"/>
-      <tns:if test="xalan:nodeset($token)/token/@type != '{terminal[end]/@name}'">
+      <tns:copy-of select="exsl:node-set($token)/token"/>
+      <tns:if test="exsl:node-set($token)/token/@type != '{terminal[end]/@name}'">
         <tns:call-template name="t:tokenize">
-          <tns:with-param name="in" select="xalan:nodeset($token)/remainder"/>
+          <tns:with-param name="in" select="exsl:node-set($token)/remainder"/>
         </tns:call-template>
       </tns:if>
     </tns:template>

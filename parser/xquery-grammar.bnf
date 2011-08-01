@@ -408,6 +408,8 @@ OrderByClause ::= "orderby";
 
   <import href="xquery-lexer.xsl"/>
 
+  <!--
   <import href="xpath-templates.xsl"/>
+  -->
 
 </grammar>

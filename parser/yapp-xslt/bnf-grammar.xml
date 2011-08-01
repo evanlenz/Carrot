@@ -185,10 +185,10 @@
       </xsl:variable>
       <xsl:variable name="grammar">
         <!-- turn 'term' elements into something more useful -->
-        <xsl:apply-templates select="xalan:nodeset($parsed)/term" mode="rewrite"/>
+        <xsl:apply-templates select="exsl:node-set($parsed)/term" mode="rewrite"/>
       </xsl:variable>
       <!-- turn productions into grammar -->
-      <xsl:apply-templates select="xalan:nodeset($grammar)" mode="generate"/>
+      <xsl:apply-templates select="exsl:node-set($grammar)" mode="generate"/>
 
     </xsl:template>
 

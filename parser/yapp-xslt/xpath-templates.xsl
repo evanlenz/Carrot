@@ -16,6 +16,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:p="http://www.pingdynasty.com/namespaces/parser"
   xmlns:xalan="http://xml.apache.org/xalan"
+  xmlns:exsl="http://exslt.org/common"
   version="1.0">
 
   <xsl:template match="text()"/>
@@ -33,7 +34,7 @@
       </xsl:call-template>
     </xsl:variable>
     <expression select="{@select}">
-      <xsl:apply-templates select="xalan:nodeset($forest)" mode="result"/>
+      <xsl:apply-templates select="exsl:node-set($forest)" mode="result"/>
     </expression>
   </xsl:template>
 
