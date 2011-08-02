@@ -200,7 +200,7 @@ ExprSingle ::= comment ;
       ExprSingle     ::=  single;
       single ::= 'single';
       -->
-      ExprSingle     ::=      FLWORExpr | literal; <!-- FIXME -->
+      ExprSingle     ::=      FLWORExpr | QuantifiedExpr | literal; <!-- FIXME -->
       <!--
       ExprSingle     ::=      FLWORExpr
 | QuantifiedExpr
@@ -208,6 +208,19 @@ ExprSingle ::= comment ;
 | IfExpr
 | OrExpr;
 -->
+
+QuantifiedExpr ::= SomeOrEvery QuantifiedVarBinding NextQuantifiedVarBindingsOpt satisfies ExprSingle;
+dummy ::= "dummy";
+satisfies ::= "satisfies";
+SomeOrEvery ::= some | every;
+some ::= "some";
+every ::= "every";
+QuantifiedVarBinding ::= dollar VarName TypeDeclarationOpt in ExprSingle;
+
+NextQuantifiedVarBindingsOpt ::= NextQuantifiedVarBindings | ;
+NextQuantifiedVarBindings ::= NextQuantifiedVarBindings NextQuantifiedVarBinding | NextQuantifiedVarBinding;
+NextQuantifiedVarBinding ::= comma QuantifiedVarBinding;
+
 
 
 FLWORExpr      ::=  ForLetClauses WhereClauseOpt OrderByClauseOpt return ExprSingle;
