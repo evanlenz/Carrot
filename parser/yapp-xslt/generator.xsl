@@ -26,11 +26,17 @@
   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 
   <xsl:template match="/">
-    <tns:stylesheet version="1.0"
+    <tns:stylesheet version="2.0"
       xalan:ignore="ignore" t:ignore="ignore" p:ignore="ignore"
       exclude-result-prefixes="xalan">
       <xsl:apply-templates select="grammar/import"/>
       <tns:output method="xml" indent="yes" encoding="UTF-8"/>
+
+      <!-- Added for Saxon -->
+      <tns:function name="exsl:node-set">
+        <tns:param name="rtf"/>
+        <tns:sequence select="$rtf"/>
+      </tns:function>
 
       <xsl:apply-templates select="grammar"/>
     </tns:stylesheet>
@@ -62,9 +68,9 @@
     <xsl:comment> Construct: <xsl:value-of select="@name"/> </xsl:comment>
     <tns:template name="p:{@name}">
       <tns:param name="in"/>
-      <!-- <tns:message>
+      <tns:message>
         <xsl:value-of select="@name"/> gets in {<tns:value-of select="$in"/>}
-      </tns:message>-->
+      </tns:message>
       <xsl:apply-templates select="option[1]" mode="content"/>
     </tns:template>
   </xsl:template>
@@ -84,6 +90,7 @@
     <tns:variable name="option{$title}">
       <xsl:apply-templates select="part" mode="content"/>
     </tns:variable>
+<tns:message>option<xsl:value-of select="$title"/>: <tns:copy-of select="$option{$title}"/></tns:message>
     <tns:choose>
       <tns:when test="count(exsl:node-set($option{$title})/term) = {count(part)}">
         <term name="{../@name}">
@@ -136,18 +143,18 @@
   <xsl:template match="terminal">
     <tns:template name="p:{@name}">
       <tns:param name="in"/>
-      <!-- <tns:message>
+      <tns:message>
         <xsl:value-of select="@name"/> gets in: <tns:value-of select="$in"/>
-      </tns:message>-->
+      </tns:message>
       <tns:variable name="token">
         <tns:call-template name="t:nextToken">
           <tns:with-param name="in" select="$in"/>
         </tns:call-template>
       </tns:variable>
       <tns:if test="exsl:node-set($token)/token/@type='{@name}'">
-        <!-- <tns:message>
-          <xsl:value-of select="@name"/> matches {<tns:value-of select="xalan:nodeset($token)/token"/>}
-        </tns:message>-->
+        <tns:message>
+          <xsl:value-of select="@name"/> matches {<tns:value-of select="exsl:node-set($token)/token"/>}
+        </tns:message>
         <term name="{@name}">
           <tns:value-of select="exsl:node-set($token)/token"/>
         </term>

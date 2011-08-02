@@ -5,14 +5,14 @@
 
   <xsl:include href="xquery-parser.xsl"/>
 
-  <xsl:variable name="expr">for $x as empty-sequence() at $i in "string", $y as node()+ at $j in "bat" where "true" order by "foo" ascending empty greatest collation "http:foobar.com" return let $foo := "bar", $bar := "bang" return "bat"</xsl:variable>
+  <!-- TODO: Figure out why this one doesn't work (especially the "every" expression at the end
+  <xsl:variable name="expr">for $x as empty-sequence() at $i in "string", $y as node()+ at $j in "bat" where "true" order by "foo" ascending empty greatest collation "http:foobar.com" return let $foo := "bar", $bar := "bang" return <!- -some $asdf in "bat" satisfies- -> <!- -some $asdf in- -> every $dummy in "blah" satisfies "true"</xsl:variable>
+  -->
+  <xsl:variable name="expr">for $foo in "bar", $bar in "bang", $baz in "blah" return some $blah in "bat" satisfies "true"</xsl:variable>
 
   <xsl:template match="/">
     <xsl:call-template name="p:Expr" xmlns:p="http://www.pingdynasty.com/namespaces/parser">
-      <xsl:with-param name="in" select="string($expr)"/><!--for let where stable order by for return orderModifier return for let where order by for return orderModifier return'"/>-->
-      <!--
-      <xsl:with-param name="in" select="'for let where order by for return return for let where stable order by let where return return'"/>
-      -->
+      <xsl:with-param name="in" select="string($expr)"/>
     </xsl:call-template>
   </xsl:template>
 
