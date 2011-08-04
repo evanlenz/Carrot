@@ -9,6 +9,8 @@ Carrot combines the best that XQuery and XSLT have to offer:
 Carrot can also be thought of as an alternative, more composable syntax
 for XSLT.
 
+Read the full [Balisage conference paper on Carrot](http://www.balisage.net/Proceedings/vol7/html/Lenz01/BalisageVol7-Lenz01.html).
+
 What does it look like?
 -----------------------
 
@@ -131,7 +133,3 @@ How Carrot compares to XSLT
 
 A ruleset is another name for a mode in XSLT...
 
-See the Balisage conference paper on Carrot
--------------------------------------------
-
-http://www.balisage.net/Proceedings/vol7/html/Lenz01/BalisageVol7-Lenz01.html
