@@ -9,7 +9,11 @@ Carrot combines the best that XQuery and XSLT have to offer:
 Carrot can also be thought of as an alternative, more composable syntax
 for XSLT.
 
-[Read the full Balisage conference paper on Carrot](http://www.balisage.net/Proceedings/vol7/html/Lenz01/BalisageVol7-Lenz01.html).
+Learn more:
+
+  * [Read the full Balisage conference paper on Carrot.](http://www.balisage.net/Proceedings/vol7/html/Lenz01/BalisageVol7-Lenz01.html)
+  * [View the Carrot slides.](http://www.slideshare.net/evanlenz/carrot-an-appetizing-hybrid-of-xquery-and-xslt)
+  * [Join the Carrot mailing list.](http://groups.google.com/group/carrot-xml)
 
 What does it look like?
 -----------------------
