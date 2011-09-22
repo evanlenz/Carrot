@@ -1,5 +1,13 @@
-(* Modified using this XQuery 1.0 EBNF file as a baseline: http://www.bottlecaps.de/rex/XQueryV10.ebnf *)
+/* Modified using this XQuery 1.0 EBNF file as a baseline: http://www.bottlecaps.de/rex/XQueryV10.ebnf */
 
+/* Top-level Carrot module */
+Carrot   ::= CarrotModule EOF
+CarrotModule
+         ::= ((VarDecl | FunctionDecl | RuleDecl) Separator)*
+
+
+/* Top-level XQuery productions not applicable to Carrot (except for Separator) */
+/*
 XQuery   ::= Module EOF
 Module   ::= VersionDecl? ( LibraryModule | MainModule )
 VersionDecl
@@ -20,8 +28,12 @@ Setter   ::= BoundarySpaceDecl
            | CopyNamespacesDecl
 Import   ::= SchemaImport
            | ModuleImport
+*/
+
 Separator
          ::= ';'
+
+/*
 NamespaceDecl
          ::= 'declare' 'namespace' NCName '=' URILiteral
 BoundarySpaceDecl
@@ -53,18 +65,77 @@ SchemaPrefix
            | 'default' 'element' 'namespace'
 ModuleImport
          ::= 'import' 'module' ( 'namespace' NCName '=' )? URILiteral ( 'at' URILiteral ( ',' URILiteral )* )?
+*/
+
+
+
+/* XQuery 1.0, with Carrot-specific modifications */
+
+/*
 VarDecl  ::= 'declare' 'variable' '$' QName TypeDeclaration? ( ':=' ExprSingle | 'external' )
+*/
+/* Modified from XQuery */
+VarDecl  ::= '$' QName TypeDeclaration? ':=' Expr
+
+/*
 ConstructionDecl
          ::= 'declare' 'construction' ( 'strip' | 'preserve' )
+*/
+
+/*
 FunctionDecl
          ::= 'declare' 'function' FunctionName '(' ParamList? ')' ( 'as' SequenceType )? ( EnclosedExpr | 'external' )
+*/
+/* Modified from XQuery */
+FunctionDecl
+         ::= FunctionName '(' ParamList? ')' ( 'as' SequenceType )? ':=' Expr
+
+
+/* Carrot-specific */
+RuleDecl ::= '^' (ModeName ('|' ModeName)* )? '(' Pattern (';' RuleParamList)? ')' (IntegerLiteral | DecimalLiteral)? ':=' Expr
+ModeName ::= (QName | '#current' | '#default')
+RuleParamList
+         ::= ParamWithDefault (',' ParamWithDefault)*
+ParamWithDefault
+         ::= ("tunnel")? Param (":=" ExprSingle)?
+
+
+/* XSLT-specific productions for patterns (from the XSLT 2.0 spec) */
+Pattern  ::= PathPattern NextPathPatternOpt /* modified to make the parser generator happy */
+NextPathPatternOpt
+         ::= ('|' PathPattern NextPathPatternOpt)?
+/*
+Pattern  ::= PathPattern | Pattern '|' PathPattern
+*/
+PathPattern
+         ::= RelativePathPattern
+           | '/' RelativePathPattern?
+           | '//' RelativePathPattern
+           | IdKeyPattern (('/' | '//') RelativePathPattern)?
+RelativePathPattern
+         ::= PatternStep (('/' | '//') RelativePathPattern)?
+PatternStep
+         ::= PatternAxis? NodeTest PredicateList
+PatternAxis
+         ::= ('child' '::' | 'attribute' '::' | '@')
+IdKeyPattern
+         ::= 'id' '(' IdValue ')'
+           | 'key' '(' StringLiteral ',' KeyValue ')'
+IdValue  ::= StringLiteral
+           | VarRef
+KeyValue ::= Literal
+           | VarRef
+
+
 ParamList
          ::= Param ( ',' Param )*
 Param    ::= '$' QName TypeDeclaration?
 EnclosedExpr
          ::= '{' Expr '}'
+/*
 QueryBody
          ::= Expr
+*/
 Expr     ::= ExprSingle ( ',' ExprSingle )*
 ExprSingle
          ::= FLWORExpr
@@ -201,8 +272,10 @@ PrimaryExpr
            | OrderedExpr
            | UnorderedExpr
            | Constructor
+           | RulesetCall /* Carrot-specific */
 Literal  ::= NumericLiteral
            | StringLiteral
+           | TextNodeLiteral /* Carrot-specific */
 NumericLiteral
          ::= IntegerLiteral
            | DecimalLiteral
@@ -219,6 +292,13 @@ UnorderedExpr
          ::= 'unordered' '{' Expr '}'
 FunctionCall
          ::= FunctionName '(' ( ExprSingle ( ',' ExprSingle )* )? ')'
+
+/* Carrot-specific */
+RulesetCall ::= '^' ModeName? '(' Expr? (';' RulesetCallParamList)? ')'
+RulesetCallParamList ::= InitializedParam (',' InitializedParam)*
+InitializedParam ::= ('tunnel')? Param ':=' ExprSingle
+
+
 Constructor
          ::= DirectConstructor
            | ComputedConstructor
@@ -266,6 +346,7 @@ ComputedConstructor
            | CompTextConstructor
            | CompCommentConstructor
            | CompPIConstructor
+           | CompCopyConstructor /* Carrot-specific */
 CompDocConstructor
          ::= 'document' '{' Expr '}'
 CompElemConstructor
@@ -280,6 +361,11 @@ CompCommentConstructor
          ::= 'comment' '{' Expr '}'
 CompPIConstructor
          ::= 'processing-instruction' ( NCName | '{' Expr '}' ) '{' Expr? '}'
+
+/* Carrot-specific */
+CompCopyConstructor
+         ::= 'copy' '{' Expr '}'
+
 SingleType
          ::= AtomicType '?'?
 TypeDeclaration
@@ -444,6 +530,7 @@ NCName   ::= 'and'
            | 'union'
            | 'where'
            | NCName^Token
+/* EDL: not sure what this is; commented out to avoid apparent error*/
 KeyValuePairs
          ::= ( Key ( '=' Value )? )* EOF
 Key      ::= QName^Token
@@ -473,6 +560,13 @@ StringLiteral
          ::= '"' ( PredefinedEntityRef | CharRef | EscapeQuot | [^"&] )* '"'
            | "'" ( PredefinedEntityRef | CharRef | EscapeApos | [^'&] )* "'"
           /* ws: explicit */
+
+/* Carrot-specific */
+TextNodeLiteral
+         ::= '`' ( PredefinedEntityRef | CharRef | EscapeTick | [^`&] )* '`'
+          /* ws: explicit */
+EscapeTick ::= '``'
+
 PredefinedEntityRef
          ::= '&' ( 'lt' | 'gt' | 'amp' | 'quot' | 'apos' ) ';'
           /* ws: explicit */
