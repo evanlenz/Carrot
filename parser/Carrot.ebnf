@@ -530,7 +530,6 @@ NCName   ::= 'and'
            | 'union'
            | 'where'
            | NCName^Token
-/* EDL: not sure what this is; commented out to avoid apparent error*/
 KeyValuePairs
          ::= ( Key ( '=' Value )? )* EOF
 Key      ::= QName^Token
