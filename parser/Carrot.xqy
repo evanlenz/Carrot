@@ -8635,7 +8635,11 @@ declare function p:parse-KeyValuePairs($s as xs:string) as item()*
 declare variable $input external;
 
 let $result :=
+  (: EDL: Manual change so regex is processed in "dot-all" mode :)
+  if (matches($input, "^\{.*\}$", "s")) then
+  (:
   if (matches($input, "^\{.*\}$")) then
+  :)
     p:parse-Carrot(substring($input, 2, string-length($input) - 2))
   else
     p:parse-Carrot(collection(concat(".?select=", $input, ";unparsed=yes")))
