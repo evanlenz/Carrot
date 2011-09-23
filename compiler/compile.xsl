@@ -50,7 +50,8 @@
                     <xsl:attribute name="tunnel" select="'yes'"/>
                   </xsl:template>
 
-                  <xsl:template match="ParamWithDefault/ExprSingle">
+                  <xsl:template match="ParamWithDefault/ExprSingle
+                                     | InitializedParam/ExprSingle">
                     <xsl:attribute name="select"> <!-- FIXME: this doesn't support arbitrary expressions yet -->
                       <xsl:value-of select="."/>
                     </xsl:attribute>
@@ -75,7 +76,33 @@
           </xsl:template>
 
           <xsl:template match="DirAttributeValue">
-            <xsl:apply-templates select="node() except TOKEN"/> <!-- FIXME: handle enclosed arbitrary expressions -->
+            <!-- FIXME: handle enclosed arbitrary expressions -->
+            <xsl:apply-templates select="node() except TOKEN"/> <!-- exclude the delimiters -->
           </xsl:template>
+
+          <xsl:template match="DirElemContent/CommonContent/EnclosedExpr">
+            <xsl:apply-templates select="node() except TOKEN"/> <!-- exclude the delimiters -->
+          </xsl:template>
+
+
+  <xsl:template match="RulesetCall">
+    <out:apply-templates select="{Expr}"> <!-- FIXME: handle arbitrary expressions -->
+      <xsl:apply-templates select="ModeName,
+                                   RulesetCallParamList/InitializedParam"/>
+    </out:apply-templates>
+  </xsl:template>
+
+          <xsl:template match="InitializedParam">
+            <out:with-param name="{Param/QName}">
+              <xsl:apply-templates select="Tunnel, ExprSingle"/>
+            </out:with-param>
+          </xsl:template>
+
+
+  <xsl:template match="TextNodeLiteral">
+    <out:text>
+      <xsl:value-of select="substring-before(substring-after(.,'`'),'`')"/>
+    </out:text>
+  </xsl:template>
 
 </xsl:stylesheet>
