@@ -65,8 +65,12 @@
   </xsl:template>
 
           <xsl:template match="DirAttributeList/QName">
-            <xsl:attribute name="{.}">
+            <!-- Variable definition is a workaround for XSLTBUG 15227 -->
+            <xsl:variable name="att-value">
               <xsl:apply-templates select="following-sibling::DirAttributeValue[1]"/>
+            </xsl:variable>
+            <xsl:attribute name="{.}">
+              <xsl:value-of select="$att-value"/>
             </xsl:attribute>
           </xsl:template>
 
