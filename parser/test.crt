@@ -1,2 +1,10 @@
-^(/) := <result>{^(foo)}</result>;
-^(foo) := `text node`;
+^myMode|yourMode (/; tunnel $param1,
+                     tunnel $param2 := "default value",
+                            $param3)
+  := <result att="val"
+             att2="val2"
+             att3="{3+3}">{
+      ^(foo)
+     }</result>;
+
+^(foo) 1 := `text node`;
