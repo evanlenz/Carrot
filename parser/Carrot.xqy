@@ -1,6 +1,6 @@
 xquery version "1.0" encoding "UTF-8";
 
-(: This file was generated on Fri Sep 23, 2011 21:59 by REx v5.9 which is Copyright (c) 1979-2011 by Gunther Rademacher <grd@gmx.net> :)
+(: This file was generated on Fri Sep 23, 2011 23:58 by REx v5.9 which is Copyright (c) 1979-2011 by Gunther Rademacher <grd@gmx.net> :)
 (: REx command line: Carrot.ebnf -xquery -tree :)
 
 (:~
@@ -2221,20 +2221,6 @@ declare function p:parse-Separator($input as xs:string, $state as item()+) as it
 };
 
 (:~
- : Parse Tunnel.
- :
- : @param $input the input string.
- : @param $state the parser state.
- : @return the updated parser state.
- :)
-declare function p:parse-Tunnel($input as xs:string, $state as item()+) as item()+
-{
-  let $count := count($state)
-  let $state := p:shift(160, $input, $state)                (: 'tunnel' :)
-  return p:reduce($state, "Tunnel", $count)
-};
-
-(:~
  : Parse ParamWithDefault.
  :
  : @param $input the input string.
@@ -3574,6 +3560,20 @@ declare function p:parse-Param($input as xs:string, $state as item()+) as item()
 };
 
 (:~
+ : Parse Tunnel.
+ :
+ : @param $input the input string.
+ : @param $state the parser state.
+ : @return the updated parser state.
+ :)
+declare function p:parse-Tunnel($input as xs:string, $state as item()+) as item()+
+{
+  let $count := count($state)
+  let $state := p:shift(160, $input, $state)                (: 'tunnel' :)
+  return p:reduce($state, "Tunnel", $count)
+};
+
+(:~
  : Parse InitializedParam.
  :
  : @param $input the input string.
@@ -3588,7 +3588,7 @@ declare function p:parse-InitializedParam($input as xs:string, $state as item()+
     if ($state[$p:error]) then
       $state
     else if ($state[$p:l1] = 160) then                      (: 'tunnel' :)
-      let $state := p:shift(160, $input, $state)            (: 'tunnel' :)
+      let $state := p:parse-Tunnel($input, $state)
       return $state
     else
       $state

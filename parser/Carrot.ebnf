@@ -297,7 +297,7 @@ FunctionCall
 /* Carrot-specific */
 RulesetCall ::= '^' ModeName? '(' Expr? (';' RulesetCallParamList)? ')'
 RulesetCallParamList ::= InitializedParam (',' InitializedParam)*
-InitializedParam ::= ('tunnel')? Param ':=' ExprSingle
+InitializedParam ::= Tunnel? Param ':=' ExprSingle
 
 
 Constructor
