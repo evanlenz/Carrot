@@ -7,6 +7,10 @@
   <xsl:namespace-alias stylesheet-prefix="out" result-prefix="xsl"/>
 
   <xsl:template match="/Carrot/CarrotModule">
+    <xsl:comment>
+      <xsl:text>Auto-generated from the following Carrot source:&#xA;&#xA;</xsl:text>
+      <xsl:value-of select="."/>
+    </xsl:comment>
     <out:stylesheet version="2.0">
       <xsl:apply-templates select="VarDecl | FunctionDecl | RuleDecl"/>
     </out:stylesheet>
