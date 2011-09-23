@@ -7,6 +7,8 @@
    http://localhost:8020/parser/parse.xqy?file=parser/test.crt
 :)
 
+import module namespace p="Carrot" at "Carrot.xqy";
+
 declare variable $input-file := xdmp:get-request-field("file");
 
 declare variable $file-path := concat(xdmp:modules-root(),$input-file);
@@ -19,6 +21,4 @@ string(
     </options>)
 );
 
-declare variable $parse-string := concat('{', $carrot-string, '}');
-
-xdmp:invoke("Carrot.xqy", (xs:QName("input"), $parse-string))
+p:parse-Carrot($carrot-string)

@@ -1,9 +1,15 @@
 xquery version "1.0" encoding "UTF-8";
 
-(: This file was generated on Thu Sep 22, 2011 21:36 by REx v5.9 which is Copyright (c) 1979-2011 by Gunther Rademacher <grd@gmx.net> :)
-(: REx command line: Carrot.ebnf -main -tree -xquery :)
+(: This file was generated on Fri Sep 23, 2011 21:59 by REx v5.9 which is Copyright (c) 1979-2011 by Gunther Rademacher <grd@gmx.net> :)
+(: REx command line: Carrot.ebnf -xquery -tree :)
 
-declare namespace p="Carrot";
+(:~
+ : The parser that was generated for the Carrot grammar.
+ :)
+module namespace p="Carrot";
+
+(: EDL: Manually added to make this work in MarkLogic Server :)
+declare default function namespace "http://www.w3.org/2005/xpath-functions";
 
 (:~
  : The codepoint to charclass mapping for 7 bit codepoints.
@@ -2215,6 +2221,20 @@ declare function p:parse-Separator($input as xs:string, $state as item()+) as it
 };
 
 (:~
+ : Parse Tunnel.
+ :
+ : @param $input the input string.
+ : @param $state the parser state.
+ : @return the updated parser state.
+ :)
+declare function p:parse-Tunnel($input as xs:string, $state as item()+) as item()+
+{
+  let $count := count($state)
+  let $state := p:shift(160, $input, $state)                (: 'tunnel' :)
+  return p:reduce($state, "Tunnel", $count)
+};
+
+(:~
  : Parse ParamWithDefault.
  :
  : @param $input the input string.
@@ -2229,7 +2249,7 @@ declare function p:parse-ParamWithDefault($input as xs:string, $state as item()+
     if ($state[$p:error]) then
       $state
     else if ($state[$p:l1] = 160) then                      (: 'tunnel' :)
-      let $state := p:shift(160, $input, $state)            (: 'tunnel' :)
+      let $state := p:parse-Tunnel($input, $state)
       return $state
     else
       $state
@@ -8628,25 +8648,5 @@ declare function p:parse-KeyValuePairs($s as xs:string) as item()*
     else
       $state[position() >= $p:result]
 };
-
-(:~
- : The input filename, or string, if surrounded by curly braces.
- :)
-declare variable $input external;
-
-let $result :=
-  (: EDL: Manual change so regex is processed in "dot-all" mode :)
-  if (matches($input, "^\{.*\}$", "s")) then
-  (:
-  if (matches($input, "^\{.*\}$")) then
-  :)
-    p:parse-Carrot(substring($input, 2, string-length($input) - 2))
-  else
-    p:parse-Carrot(collection(concat(".?select=", $input, ";unparsed=yes")))
-return
-  if (empty($result/self::ERROR)) then
-    $result
-  else
-    error(xs:QName("p:parse-Carrot"), concat("&#10;    ", replace($result, "&#10;", "&#10;    ")))
 
 (: End :)
