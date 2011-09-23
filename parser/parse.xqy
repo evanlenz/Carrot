@@ -11,6 +11,8 @@ import module namespace p="Carrot" at "Carrot.xqy";
 
 declare variable $input-file := xdmp:get-request-field("file");
 
+declare variable $compile := xdmp:get-request-field("compile");
+
 declare variable $file-path := concat(xdmp:modules-root(),$input-file);
 
 declare variable $carrot-string := 
@@ -21,4 +23,8 @@ string(
     </options>)
 );
 
-p:parse-Carrot($carrot-string)
+declare variable $parse-result := p:parse-Carrot($carrot-string);
+
+if ($compile eq 'yes') then (xdmp:xslt-invoke("../compiler/compile.xsl", document{$parse-result}),
+                             xdmp:set-response-content-type("text/xml"))
+                       else $parse-result
