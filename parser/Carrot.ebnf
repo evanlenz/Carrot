@@ -97,7 +97,8 @@ ModeName ::= (QName | '#current' | '#default')
 RuleParamList
          ::= ParamWithDefault (',' ParamWithDefault)*
 ParamWithDefault
-         ::= ("tunnel")? Param (":=" ExprSingle)?
+         ::= Tunnel? Param (":=" ExprSingle)?
+Tunnel   ::= 'tunnel'
 
 
 /* XSLT-specific productions for patterns (from the XSLT 2.0 spec) */
