@@ -4,10 +4,10 @@
    Assuming an app server with the root set to this source tree,
    invoke this script via HTTP, e.g.:
 
-   http://localhost:8020/parser/parse.xqy?file=parser/test.crt
+   http://localhost:8020/test/test.xqy?file=test/test.crt
 :)
 
-import module namespace p="Carrot" at "Carrot.xqy";
+import module namespace p="Carrot" at "../parser/Carrot.xqy";
 
 declare variable $input-file := xdmp:get-request-field("file");
 
