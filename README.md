@@ -21,15 +21,19 @@ What does it look like?
 Carrot is best understood by example. Here's an example of XSLT's
 syntax for a template rule (henceforth "rule"):
 
-    <xsl:template match="para">
-      <p>
-        <xsl:apply-templates/>
-      <p>
-    </xsl:template>
+```xml
+<xsl:template match="para">
+  <p>
+    <xsl:apply-templates/>
+  <p>
+</xsl:template>
+```
 
 In Carrot, you'd write the above rule like this:
 
-    ^(para) := <p>{^()}</p>;
+```xqy
+^(para) := <p>{^()}</p>;
+```
 
 There are a few things to note about the above. To define a rule in Carrot,
 you use the same operator that XQuery uses for binding variables (`:=`).
@@ -38,37 +42,50 @@ Carrot. An expression in Carrot is simply an XQuery expression, plus some
 extensions. In this case, the expression is using the extended syntax for
 invoking rules:
 
-    ^()
+```xqy
+^()
+```
 
 which is short for:
 
-    ^(node())
+```xqy
+^(node())
+```
 
 just as:
 
-    <xsl:apply-templates/>
+```xml
+<xsl:apply-templates/>
+```
 
 is short for:
 
-    <xsl:apply-templates select="node()"/>
-
+```xml
+<xsl:apply-templates select="node()"/>
+```
 All rules belong to a *ruleset* (you can think of a ruleset as a polymorphic
 function, if you like). The above examples use the unnamed ruleset (there's just
 one of these). Here's an example that belongs to a ruleset named "toc":
 
-    ^toc(section) := <li>{ ^toc() }</li>;
+```xqy
+^toc(section) := <li>{ ^toc() }</li>;
+```
 
 The above is short for:
 
-    <xsl:template match="section" mode="toc">
-      <li>
-        <xsl:apply-templates mode="toc"/>
-      </li>
-    </xsl:template>
+```xml
+<xsl:template match="section" mode="toc">
+  <li>
+    <xsl:apply-templates mode="toc"/>
+  </li>
+</xsl:template>
+```
 
 Here's the identity transform in Carrot:
 
-    ^(@*|node()) := copy{ ^(@*|node()) };
+```xqy
+^(@*|node()) := copy{ ^(@*|node()) };
+```
 
 This recursively copies the input to the output, one node at a time.
 
@@ -76,44 +93,46 @@ Here's a Carrot script that creates
 an HTML document with dynamic content for its title and body, converting
 `<para>` elements in the input to `<p>` elements in the output:
 
-    ^(/) :=
-      <html>
-        <head>
-          { /doc/title }
-        </head>
-        <body>
-          { ^(/doc/para) }
-        </body>
-      </html>;
+```xqy
+^(/) :=
+  <html>
+    <head>
+      { /doc/title }
+    </head>
+    <body>
+      { ^(/doc/para) }
+    </body>
+  </html>;
 
-    ^(para) := <p>{ ^() }</p>;
+^(para) := <p>{ ^() }</p>;
+```
 
 As a comparison, here's what you'd have to write if you were using regular
 XSLT:
 
-    <xsl:transform version="2.0"
-      xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+```xml
+<xsl:transform version="2.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-      <xsl:template match="/">
-        <html>
-          <head>
-            <xsl:copy-of select="/doc/title"/>
-          </head>
-          <body>
-            <xsl:apply-templates select="/doc/para"/>
-          </body>
-        </html>
-      </xsl:template>
+  <xsl:template match="/">
+    <html>
+      <head>
+        <xsl:copy-of select="/doc/title"/>
+      </head>
+      <body>
+        <xsl:apply-templates select="/doc/para"/>
+      </body>
+    </html>
+  </xsl:template>
 
-      <xsl:template match="para">
-        <p>
-          <xsl:apply-templates/>
-        </p>
-      </xsl:template>
+  <xsl:template match="para">
+    <p>
+      <xsl:apply-templates/>
+    </p>
+  </xsl:template>
 
-    </xsl:transform>
-
-
+</xsl:transform>
+```
 
 How Carrot compares to XQuery
 -----------------------------
