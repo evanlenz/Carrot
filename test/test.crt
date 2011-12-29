@@ -4,7 +4,7 @@
   := <result att="val"
              att2="val2"
              att3="{3+3}">{
-      ^(foo; tunnel $foo := "bar")
+      ^(<foo/>; tunnel $foo := "bar")
      }</result>;
 
-^(foo) 1 := `text node`;
+^(foo) 1 := `text node`, bar/<bat/>;

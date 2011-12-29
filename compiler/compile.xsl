@@ -2,7 +2,8 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:out="dummy"
-  exclude-result-prefixes="xs out">
+  xmlns:my="http://localhost"
+  exclude-result-prefixes="xs out my">
 
   <xsl:namespace-alias stylesheet-prefix="out" result-prefix="xsl"/>
 
@@ -13,6 +14,7 @@
     </xsl:comment>
     <out:stylesheet version="2.0">
       <xsl:apply-templates select="VarDecl | FunctionDecl | RuleDecl"/>
+      <xsl:apply-templates mode="auxiliary-defs" select="//DirElemConstructor"/> <!-- FIXME: complete this list -->
     </out:stylesheet>
   </xsl:template>
 
@@ -90,11 +92,31 @@
 
 
   <xsl:template match="RulesetCall">
-    <out:apply-templates select="{Expr}"> <!-- FIXME: handle arbitrary expressions -->
+    <xsl:variable name="xpath-expr">
+      <xsl:apply-templates mode="xpath" select="Expr"/>
+    </xsl:variable>
+    <out:apply-templates select="{$xpath-expr}"> <!-- FIXME: handle arbitrary expressions -->
       <xsl:apply-templates select="ModeName,
                                    RulesetCallParamList/InitializedParam"/>
     </out:apply-templates>
   </xsl:template>
+
+          <xsl:template mode="auxiliary-defs" match="text()"/>
+
+          <xsl:template mode="auxiliary-defs" match="*">
+            <out:function name="{generate-id(.)}" as="element()">
+              <out:param name="context-item"/>
+              <out:param name="context-position"/>
+              <out:param name="context-size"/>
+              <xsl:apply-templates select="."/>
+            </out:function>
+          </xsl:template>
+
+          <xsl:template mode="xpath" match="*">
+            <xsl:text>my:</xsl:text>
+            <xsl:value-of select="generate-id(.)"/>
+            <xsl:text>(., position(), last())</xsl:text>
+          </xsl:template>
 
           <xsl:template match="InitializedParam">
             <out:with-param name="{Param/QName}">
@@ -107,6 +129,24 @@
     <out:text>
       <xsl:value-of select="substring-before(substring-after(.,'`'),'`')"/>
     </out:text>
+  </xsl:template>
+
+  <xsl:function name="my:expr-id">
+    <xsl:param name="expr-node" as="element()"/>
+    <xsl:apply-templates mode="expr-id-prefix" select="."/>
+  </xsl:function>
+
+          <xsl:template mode="expr-id-prefix" match="DirElemConstructor">
+          </xsl:template>
+
+
+  <xsl:template match="Expr/TOKEN"/> <!-- strip out commas in sequence constructor mode -->
+
+  <xsl:template match="ExprSingle">
+    <xsl:variable name="xpath">
+      <xsl:apply-templates mode="xpath" select="."/>
+    </xsl:variable>
+    <out:sequence select="{$xpath}"/>
   </xsl:template>
 
 </xsl:stylesheet>
