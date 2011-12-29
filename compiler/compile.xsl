@@ -3,7 +3,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:out="dummy"
   xmlns:my="http://localhost"
-  exclude-result-prefixes="xs out my">
+  exclude-result-prefixes="xs out">
 
   <xsl:namespace-alias stylesheet-prefix="out" result-prefix="xsl"/>
 
@@ -133,7 +133,7 @@
 
   <xsl:function name="my:expr-id">
     <xsl:param name="expr-node" as="element()"/>
-    <xsl:apply-templates mode="expr-id-prefix" select="."/>
+    <xsl:apply-templates mode="expr-id-prefix" select="$expr-node"/>
   </xsl:function>
 
           <xsl:template mode="expr-id-prefix" match="DirElemConstructor">
