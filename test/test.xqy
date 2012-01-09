@@ -5,13 +5,13 @@
    invoke this script via HTTP, e.g.:
 
    Show parsed result:
-   http://localhost:8020/test/test.xqy?carrot=test/test.crt
+   http://localhost:8020/test/test.xqy?carrot=test/01/test.crt
 
    Show compiled result:
-   http://localhost:8020/test/test.xqy?carrot=test/test.crt&compile=yes
+   http://localhost:8020/test/test.xqy?carrot=test/01/test.crt&compile=yes
 
    Show executed result:
-   http://localhost:8020/test/test.xqy?carrot=test/test.crt&source=test/test.xml
+   http://localhost:8020/test/test.xqy?carrot=test/01/test.crt&source=test/01/test.xml
 :)
 
 import module namespace p="Carrot" at "../parser/Carrot.xqy";
