@@ -34,15 +34,8 @@ Import   ::= SchemaImport
 Separator
          ::= ';'
 
-/*
 NamespaceDecl
          ::= 'declare' 'namespace' NCName '=' URILiteral
-*/
-
-/* modified slightly in Carrot */
-NamespaceDecl
-         ::= ':' NCName '=' URILiteral
-
 /*
 BoundarySpaceDecl
          ::= 'declare' 'boundary-space' ( 'preserve' | 'strip' )
