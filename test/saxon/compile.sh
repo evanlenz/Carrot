@@ -1,1 +1,1 @@
-Transform -s:$1 -xsl:../../compiler/compile.xsl
+Transform -s:$1 -xsl:../../compiler/main.xsl

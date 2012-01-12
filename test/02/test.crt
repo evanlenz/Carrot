@@ -1,0 +1,9 @@
+declare namespace x="http://example.com";
+
+$foo as xs:string* := for $x in /bar/foo return string($x);
+
+x:func($foo) as item()* := reverse($foo);
+
+^(/) := reverse($foo);
+
+^(foo[. = (<item>1</item>,<item>2</item>,<item>3</item>)]) := "hi";

@@ -2,66 +2,18 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:out="dummy"
-  xmlns:my="http://localhost"
-  exclude-result-prefixes="xs out">
+  xmlns:c="http://evanlenz.net/carrot"
+  exclude-result-prefixes="out c">
 
-  <xsl:namespace-alias stylesheet-prefix="out" result-prefix="xsl"/>
+  <xsl:function name="c:xpath">
+    <xsl:param name="expression"/>
+    <xsl:apply-templates mode="xpath" select="$expression"/>
+  </xsl:function>
 
-  <xsl:template match="/Carrot/CarrotModule">
-    <xsl:comment>
-      <xsl:text>Auto-generated from the following Carrot source:&#xA;&#xA;</xsl:text>
-      <xsl:value-of select="."/>
-    </xsl:comment>
-    <out:stylesheet version="2.0">
-      <xsl:apply-templates select="VarDecl | FunctionDecl | RuleDecl"/>
-      <xsl:apply-templates mode="auxiliary-defs" select="//DirElemConstructor"/> <!-- FIXME: complete this list -->
-    </out:stylesheet>
+  <xsl:template mode="sequence-constructor" match="*">
+    <out:sequence select="{c:xpath(.)}"/>
   </xsl:template>
 
-  <xsl:template match="RuleDecl">
-    <out:template match="{Pattern}"> <!-- FIXME: How will we handle nested arbitrary expressions in the pattern? -->
-      <xsl:apply-templates select="ModeName[1],
-                                   (IntegerLiteral | DecimalLiteral),
-                                   RuleParamList/ParamWithDefault,
-                                   Expr"/>
-    </out:template>
-  </xsl:template>
-
-          <xsl:template match="ModeName[1]">
-            <xsl:attribute name="mode">
-              <xsl:value-of select="."/>
-              <xsl:apply-templates select="following-sibling::ModeName"/>
-            </xsl:attribute>
-          </xsl:template>
-
-          <xsl:template match="ModeName">
-            <xsl:text> </xsl:text>
-            <xsl:value-of select="."/>
-          </xsl:template>
-
-  
-          <xsl:template match="RuleDecl/IntegerLiteral
-                             | RuleDecl/DecimalLiteral">
-            <xsl:attribute name="priority" select="."/>
-          </xsl:template>
-
-
-          <xsl:template match="ParamWithDefault">
-            <out:param name="{Param/QName}">
-              <xsl:apply-templates select="Tunnel, ExprSingle"/>
-            </out:param>
-          </xsl:template>
-
-                  <xsl:template match="Tunnel">
-                    <xsl:attribute name="tunnel" select="'yes'"/>
-                  </xsl:template>
-
-                  <xsl:template match="ParamWithDefault/ExprSingle
-                                     | InitializedParam/ExprSingle">
-                    <xsl:attribute name="select"> <!-- FIXME: this doesn't support arbitrary expressions yet -->
-                      <xsl:value-of select="."/>
-                    </xsl:attribute>
-                  </xsl:template>
 
 
   <xsl:template match="DirElemConstructor">
@@ -92,10 +44,7 @@
 
 
   <xsl:template match="RulesetCall">
-    <xsl:variable name="xpath-expr">
-      <xsl:apply-templates mode="xpath" select="Expr"/>
-    </xsl:variable>
-    <out:apply-templates select="{$xpath-expr}"> <!-- FIXME: handle arbitrary expressions -->
+    <out:apply-templates select="{c:xpath(Expr)}">
       <xsl:apply-templates select="ModeName,
                                    RulesetCallParamList/InitializedParam"/>
     </out:apply-templates>
@@ -112,11 +61,19 @@
             </out:function>
           </xsl:template>
 
-          <xsl:template mode="xpath" match="*">
-            <xsl:text>my:</xsl:text>
-            <xsl:value-of select="generate-id(.)"/>
-            <xsl:text>(., position(), last())</xsl:text>
-          </xsl:template>
+
+  <!--
+  <xsl:template mode="xpath" match="FLWORExpr[]">
+  </xsl:template>
+  -->
+
+  <!--
+  <xsl:template mode="xpath" match="*">
+    <xsl:text>c:</xsl:text>
+    <xsl:value-of select="generate-id(.)"/>
+    <xsl:text>(., position(), last())</xsl:text>
+  </xsl:template>
+  -->
 
           <xsl:template match="InitializedParam">
             <out:with-param name="{Param/QName}">
@@ -131,7 +88,7 @@
     </out:text>
   </xsl:template>
 
-  <xsl:function name="my:expr-id">
+  <xsl:function name="c:expr-id">
     <xsl:param name="expr-node" as="element()"/>
     <xsl:apply-templates mode="expr-id-prefix" select="$expr-node"/>
   </xsl:function>

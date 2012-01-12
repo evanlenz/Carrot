@@ -36,7 +36,7 @@ declare variable $source-doc := xdmp:document-get($source-file-path);
 
 declare variable $parse-result := p:parse-Carrot($carrot-string);
 
-declare variable $compiled-result := xdmp:xslt-invoke("../compiler/compile.xsl", document{$parse-result});
+declare variable $compiled-result := xdmp:xslt-invoke("../compiler/main.xsl", document{$parse-result});
 
      if (string($source-file)) then xdmp:xslt-eval($compiled-result, $source-doc)
 else if ($compile eq 'yes')    then ($compiled-result, xdmp:set-response-content-type("text/xml"))
