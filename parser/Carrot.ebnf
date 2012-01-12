@@ -89,7 +89,7 @@ FunctionDecl
 */
 /* Modified from XQuery */
 FunctionDecl
-         ::= FunctionName '(' ParamList? ')' ( 'as' SequenceType )? ':=' Expr
+         ::= FunctionName '(' ParamList? ')' TypeDeclaration? ':=' Expr
 
 
 /* Carrot-specific */

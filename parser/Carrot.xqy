@@ -1,13 +1,13 @@
 xquery version "1.0" encoding "UTF-8";
 
-(: This file was generated on Mon Jan  9, 2012 21:53 by REx v5.10 which is Copyright (c) 1979-2011 by Gunther Rademacher <grd@gmx.net> :)
+(: This file was generated on Thu Jan 12, 2012 19:48 by REx v5.10 which is Copyright (c) 1979-2011 by Gunther Rademacher <grd@gmx.net> :)
 (: REx command line: Carrot.ebnf -xquery -tree :)
 
 (:~
  : The parser that was generated for the Carrot grammar.
  :)
 module namespace p="Carrot";
-
+ 
 (: EDL: Manually added to make this work in MarkLogic Server :)
 declare default function namespace "http://www.w3.org/2005/xpath-functions";
 
@@ -2804,9 +2804,7 @@ declare function p:parse-FunctionDecl($input as xs:string, $state as item()+) as
     if ($state[$p:error]) then
       $state
     else if ($state[$p:l1] = 72) then                       (: 'as' :)
-      let $state := p:shift(72, $input, $state)             (: 'as' :)
-      let $state := p:lookahead1W(20, $input, $state)       (: EPSILON | S^WS | ('(' ':') :)
-      let $state := p:parse-SequenceType($input, $state)
+      let $state := p:parse-TypeDeclaration($input, $state)
       return $state
     else
       $state
