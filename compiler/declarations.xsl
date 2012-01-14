@@ -5,6 +5,8 @@
   xmlns:c="http://evanlenz.net/carrot"
   exclude-result-prefixes="out c">
 
+  <!-- NOTE: The default mode is sequence constructor mode -->
+
   <xsl:template match="NamespaceDecl">
     <xsl:namespace name="{NCName/NCName}" select="URILiteral/substring(., 2, string-length(.) - 2)"/>
   </xsl:template>
@@ -13,7 +15,7 @@
   <xsl:template match="VarDecl">
     <out:variable name="{QName}">
       <xsl:apply-templates select="TypeDeclaration"/>
-      <xsl:apply-templates mode="xpath-or-sequence-constructor" select="Expr"/>
+      <xsl:apply-templates mode="variable-value" select="c:*"/>
     </out:variable>
   </xsl:template>
 
@@ -21,11 +23,26 @@
           <xsl:attribute name="as" select="string(SequenceType)"/>
         </xsl:template>
 
+        <xsl:template mode="variable-value" match="c:XPATH">
+          <xsl:attribute name="select">
+            <xsl:apply-templates mode="xpath"/>
+          </xsl:attribute>
+        </xsl:template>
+
+        <xsl:template mode="variable-value" match="VarDecl/c:SEQUENCE_CONSTRUCTOR
+                                        | ParamWithDefault/c:SEQUENCE_CONSTRUCTOR
+                                        | InitializedParam/c:SEQUENCE_CONSTRUCTOR">
+          <xsl:if test="not(../TypeDeclaration | ../Param/TypeDeclaration)">
+            <xsl:attribute name="as" select="'item()*'"/>
+          </xsl:if>
+          <xsl:apply-templates/>
+        </xsl:template>
+
 
   <xsl:template match="FunctionDecl">
     <out:function name="{FunctionName/QName}">
       <xsl:apply-templates select="TypeDeclaration"/>
-      <xsl:apply-templates mode="sequence-constructor" select="Expr"/>
+      <xsl:apply-templates select="Expr"/>
     </out:function>
   </xsl:template>
 
@@ -41,7 +58,7 @@
       <xsl:apply-templates select="ModeName[1],
                                    (IntegerLiteral | DecimalLiteral),
                                    RuleParamList/ParamWithDefault"/>
-      <xsl:apply-templates mode="sequence-constructor" select="Expr"/>
+      <xsl:apply-templates select="Expr"/>
     </out:template>
   </xsl:template>
 
@@ -67,17 +84,12 @@
           <xsl:template match="ParamWithDefault">
             <out:param name="{Param/QName}">
               <xsl:apply-templates select="Tunnel"/>
-              <xsl:apply-templates mode="xpath-or-sequence-constructor" select="ExprSingle"/>
+              <xsl:apply-templates mode="variable-value" select="c:*"/>
             </out:param>
           </xsl:template>
 
                   <xsl:template match="Tunnel">
                     <xsl:attribute name="tunnel" select="'yes'"/>
-                  </xsl:template>
-
-                  <xsl:template match="ParamWithDefault/ExprSingle
-                                     | InitializedParam/ExprSingle">
-                    <xsl:attribute name="select" select="c:xpath(.)"/>
                   </xsl:template>
 
 </xsl:stylesheet>

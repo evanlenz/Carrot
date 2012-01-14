@@ -1,6 +1,6 @@
 ^myMode|yourMode (/; tunnel $param1,
                      tunnel $param2 := "default value",
-                            $param3)
+                            $param3 := <foo>bar</foo>)
   := <result att="val"
              att2="val2"
              att3="{3+3}">{

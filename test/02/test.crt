@@ -1,6 +1,11 @@
 declare namespace x="http://example.com";
 
+$str := "hi"[true()];
+
 $foo as xs:string* := for $x in /bar/foo return string($x);
+$bar := <foo>bar</foo> and <bang>bat</bang>;
+
+$bat := <bang>hi</bang>;
 
 x:func($foo) as item()* := reverse($foo);
 

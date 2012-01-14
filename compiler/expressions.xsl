@@ -5,15 +5,22 @@
   xmlns:c="http://evanlenz.net/carrot"
   exclude-result-prefixes="out c">
 
+  <!-- Convert a parsed Carrot expression to XPath -->
   <xsl:function name="c:xpath">
-    <xsl:param name="expression"/>
-    <xsl:apply-templates mode="xpath" select="$expression"/>
+    <xsl:param name="carrot-expr"/>
+    <xsl:apply-templates mode="xpath" select="$carrot-expr"/>
   </xsl:function>
 
+  <!-- Convert a parsed Carrot expression to an XSLT sequence constructor -->
+  <!--
   <xsl:template mode="sequence-constructor" match="*">
     <out:sequence select="{c:xpath(.)}"/>
   </xsl:template>
+  -->
 
+  <xsl:template match="FunctionCall">
+    <out:sequence select="{c:xpath(.)}"/>
+  </xsl:template>
 
 
   <xsl:template match="DirElemConstructor">
@@ -50,34 +57,10 @@
     </out:apply-templates>
   </xsl:template>
 
-          <xsl:template mode="auxiliary-defs" match="text()"/>
-
-          <xsl:template mode="auxiliary-defs" match="*">
-            <out:function name="{generate-id(.)}" as="element()">
-              <out:param name="context-item"/>
-              <out:param name="context-position"/>
-              <out:param name="context-size"/>
-              <xsl:apply-templates select="."/>
-            </out:function>
-          </xsl:template>
-
-
-  <!--
-  <xsl:template mode="xpath" match="FLWORExpr[]">
-  </xsl:template>
-  -->
-
-  <!--
-  <xsl:template mode="xpath" match="*">
-    <xsl:text>c:</xsl:text>
-    <xsl:value-of select="generate-id(.)"/>
-    <xsl:text>(., position(), last())</xsl:text>
-  </xsl:template>
-  -->
-
           <xsl:template match="InitializedParam">
             <out:with-param name="{Param/QName}">
-              <xsl:apply-templates select="Tunnel, ExprSingle"/>
+              <xsl:apply-templates select="Tunnel"/>
+              <xsl:apply-templates mode="variable-value" select="c:*"/>
             </out:with-param>
           </xsl:template>
 
