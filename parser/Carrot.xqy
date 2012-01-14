@@ -1,13 +1,13 @@
 xquery version "1.0" encoding "UTF-8";
 
-(: This file was generated on Thu Jan 12, 2012 19:48 by REx v5.10 which is Copyright (c) 1979-2011 by Gunther Rademacher <grd@gmx.net> :)
+(: This file was generated on Sat Jan 14, 2012 07:34 by REx v5.10 which is Copyright (c) 1979-2011 by Gunther Rademacher <grd@gmx.net> :)
 (: REx command line: Carrot.ebnf -xquery -tree :)
 
 (:~
  : The parser that was generated for the Carrot grammar.
  :)
 module namespace p="Carrot";
- 
+
 (: EDL: Manually added to make this work in MarkLogic Server :)
 declare default function namespace "http://www.w3.org/2005/xpath-functions";
 
@@ -6656,79 +6656,16 @@ declare function p:parse-TypeswitchExpr($input as xs:string, $state as item()+) 
 };
 
 (:~
- : Parse the 1st loop of production QuantifiedExpr (zero or more). Use
- : tail recursion for iteratively updating the parser state.
+ : Parse QuantifiedBinding.
  :
  : @param $input the input string.
  : @param $state the parser state.
  : @return the updated parser state.
  :)
-declare function p:parse-QuantifiedExpr-1($input as xs:string, $state as item()+) as item()+
-{
-  if ($state[$p:error]) then
-    $state
-  else
-    let $state := p:lookahead1W(62, $input, $state)         (: S^WS | ('(' ':') | ',' | 'satisfies' :)
-    return
-      if ($state[$p:l1] != 41) then                         (: ',' :)
-        $state
-      else
-        let $state := p:shift(41, $input, $state)           (: ',' :)
-        let $state := p:lookahead1W(26, $input, $state)     (: S^WS | '$' | ('(' ':') :)
-        let $state := p:shift(31, $input, $state)           (: '$' :)
-        let $state := p:lookahead1W(130, $input, $state)    (: S^WS | QName^Token | ('(' ':') | 'ancestor' |
-                                                               'ancestor-or-self' | 'and' | 'ascending' | 'attribute' |
-                                                               'case' | 'cast' | 'castable' | 'child' | 'collation' |
-                                                               'comment' | 'declare' | 'default' | 'descendant' |
-                                                               'descendant-or-self' | 'descending' | 'div' |
-                                                               'document' | 'document-node' | 'element' | 'else' |
-                                                               'empty' | 'empty-sequence' | 'eq' | 'every' | 'except' |
-                                                               'following' | 'following-sibling' | 'for' | 'ge' | 'gt' |
-                                                               'idiv' | 'if' | 'import' | 'instance' | 'intersect' |
-                                                               'is' | 'item' | 'le' | 'let' | 'lt' | 'mod' | 'module' |
-                                                               'ne' | 'node' | 'or' | 'order' | 'ordered' | 'parent' |
-                                                               'preceding' | 'preceding-sibling' |
-                                                               'processing-instruction' | 'return' | 'satisfies' |
-                                                               'schema-attribute' | 'schema-element' | 'self' | 'some' |
-                                                               'stable' | 'text' | 'to' | 'treat' | 'typeswitch' |
-                                                               'union' | 'unordered' | 'validate' | 'where' | 'xquery' :)
-        let $state := p:parse-VarName($input, $state)
-        let $state := p:lookahead1W(64, $input, $state)     (: S^WS | ('(' ':') | 'as' | 'in' :)
-        let $state :=
-          if ($state[$p:error]) then
-            $state
-          else if ($state[$p:l1] = 72) then                 (: 'as' :)
-            let $state := p:parse-TypeDeclaration($input, $state)
-            return $state
-          else
-            $state
-        let $state := p:lookahead1W(38, $input, $state)     (: S^WS | ('(' ':') | 'in' :)
-        let $state := p:shift(116, $input, $state)          (: 'in' :)
-        let $state := p:lookahead1W(20, $input, $state)     (: EPSILON | S^WS | ('(' ':') :)
-        let $state := p:parse-ExprSingle($input, $state)
-        return p:parse-QuantifiedExpr-1($input, $state)
-};
-
-(:~
- : Parse QuantifiedExpr.
- :
- : @param $input the input string.
- : @param $state the parser state.
- : @return the updated parser state.
- :)
-declare function p:parse-QuantifiedExpr($input as xs:string, $state as item()+) as item()+
+declare function p:parse-QuantifiedBinding($input as xs:string, $state as item()+) as item()+
 {
   let $count := count($state)
-  let $state :=
-    if ($state[$p:l1] = 152) then                           (: 'some' :)
-      let $state := p:shift(152, $input, $state)            (: 'some' :)
-      return $state
-    else if ($state[$p:error]) then
-      $state
-    else
-      let $state := p:shift(102, $input, $state)            (: 'every' :)
-      return $state
-  let $state := p:lookahead1W(26, $input, $state)           (: S^WS | '$' | ('(' ':') :)
+  let $state := p:lookahead1(5, $input, $state)             (: '$' :)
   let $state := p:shift(31, $input, $state)                 (: '$' :)
   let $state := p:lookahead1W(130, $input, $state)          (: S^WS | QName^Token | ('(' ':') | 'ancestor' |
                                                                'ancestor-or-self' | 'and' | 'ascending' | 'attribute' |
@@ -6760,6 +6697,54 @@ declare function p:parse-QuantifiedExpr($input as xs:string, $state as item()+) 
   let $state := p:shift(116, $input, $state)                (: 'in' :)
   let $state := p:lookahead1W(20, $input, $state)           (: EPSILON | S^WS | ('(' ':') :)
   let $state := p:parse-ExprSingle($input, $state)
+  return p:reduce($state, "QuantifiedBinding", $count)
+};
+
+(:~
+ : Parse the 1st loop of production QuantifiedExpr (zero or more). Use
+ : tail recursion for iteratively updating the parser state.
+ :
+ : @param $input the input string.
+ : @param $state the parser state.
+ : @return the updated parser state.
+ :)
+declare function p:parse-QuantifiedExpr-1($input as xs:string, $state as item()+) as item()+
+{
+  if ($state[$p:error]) then
+    $state
+  else
+    let $state := p:lookahead1W(62, $input, $state)         (: S^WS | ('(' ':') | ',' | 'satisfies' :)
+    return
+      if ($state[$p:l1] != 41) then                         (: ',' :)
+        $state
+      else
+        let $state := p:shift(41, $input, $state)           (: ',' :)
+        let $state := p:lookahead1W(20, $input, $state)     (: EPSILON | S^WS | ('(' ':') :)
+        let $state := p:parse-QuantifiedBinding($input, $state)
+        return p:parse-QuantifiedExpr-1($input, $state)
+};
+
+(:~
+ : Parse QuantifiedExpr.
+ :
+ : @param $input the input string.
+ : @param $state the parser state.
+ : @return the updated parser state.
+ :)
+declare function p:parse-QuantifiedExpr($input as xs:string, $state as item()+) as item()+
+{
+  let $count := count($state)
+  let $state :=
+    if ($state[$p:l1] = 152) then                           (: 'some' :)
+      let $state := p:shift(152, $input, $state)            (: 'some' :)
+      return $state
+    else if ($state[$p:error]) then
+      $state
+    else
+      let $state := p:shift(102, $input, $state)            (: 'every' :)
+      return $state
+  let $state := p:lookahead1W(20, $input, $state)           (: EPSILON | S^WS | ('(' ':') :)
+  let $state := p:parse-QuantifiedBinding($input, $state)
   let $state := p:parse-QuantifiedExpr-1($input, $state)
   let $state := p:shift(147, $input, $state)                (: 'satisfies' :)
   let $state := p:lookahead1W(20, $input, $state)           (: EPSILON | S^WS | ('(' ':') :)
@@ -6931,72 +6916,16 @@ declare function p:parse-WhereClause($input as xs:string, $state as item()+) as 
 };
 
 (:~
- : Parse the 1st loop of production LetClause (zero or more). Use
- : tail recursion for iteratively updating the parser state.
+ : Parse LetBinding.
  :
  : @param $input the input string.
  : @param $state the parser state.
  : @return the updated parser state.
  :)
-declare function p:parse-LetClause-1($input as xs:string, $state as item()+) as item()+
-{
-  if ($state[$p:error]) then
-    $state
-  else
-    let $state := p:lookahead1W(94, $input, $state)         (: S^WS | ('(' ':') | ',' | 'for' | 'let' | 'order' |
-                                                               'return' | 'stable' | 'where' :)
-    return
-      if ($state[$p:l1] != 41) then                         (: ',' :)
-        $state
-      else
-        let $state := p:shift(41, $input, $state)           (: ',' :)
-        let $state := p:lookahead1W(26, $input, $state)     (: S^WS | '$' | ('(' ':') :)
-        let $state := p:shift(31, $input, $state)           (: '$' :)
-        let $state := p:lookahead1W(130, $input, $state)    (: S^WS | QName^Token | ('(' ':') | 'ancestor' |
-                                                               'ancestor-or-self' | 'and' | 'ascending' | 'attribute' |
-                                                               'case' | 'cast' | 'castable' | 'child' | 'collation' |
-                                                               'comment' | 'declare' | 'default' | 'descendant' |
-                                                               'descendant-or-self' | 'descending' | 'div' |
-                                                               'document' | 'document-node' | 'element' | 'else' |
-                                                               'empty' | 'empty-sequence' | 'eq' | 'every' | 'except' |
-                                                               'following' | 'following-sibling' | 'for' | 'ge' | 'gt' |
-                                                               'idiv' | 'if' | 'import' | 'instance' | 'intersect' |
-                                                               'is' | 'item' | 'le' | 'let' | 'lt' | 'mod' | 'module' |
-                                                               'ne' | 'node' | 'or' | 'order' | 'ordered' | 'parent' |
-                                                               'preceding' | 'preceding-sibling' |
-                                                               'processing-instruction' | 'return' | 'satisfies' |
-                                                               'schema-attribute' | 'schema-element' | 'self' | 'some' |
-                                                               'stable' | 'text' | 'to' | 'treat' | 'typeswitch' |
-                                                               'union' | 'unordered' | 'validate' | 'where' | 'xquery' :)
-        let $state := p:parse-VarName($input, $state)
-        let $state := p:lookahead1W(63, $input, $state)     (: S^WS | ('(' ':') | ':=' | 'as' :)
-        let $state :=
-          if ($state[$p:error]) then
-            $state
-          else if ($state[$p:l1] = 72) then                 (: 'as' :)
-            let $state := p:parse-TypeDeclaration($input, $state)
-            return $state
-          else
-            $state
-        let $state := p:lookahead1W(31, $input, $state)     (: S^WS | ('(' ':') | ':=' :)
-        let $state := p:shift(51, $input, $state)           (: ':=' :)
-        let $state := p:lookahead1W(20, $input, $state)     (: EPSILON | S^WS | ('(' ':') :)
-        let $state := p:parse-ExprSingle($input, $state)
-        return p:parse-LetClause-1($input, $state)
-};
-
-(:~
- : Parse LetClause.
- :
- : @param $input the input string.
- : @param $state the parser state.
- : @return the updated parser state.
- :)
-declare function p:parse-LetClause($input as xs:string, $state as item()+) as item()+
+declare function p:parse-LetBinding($input as xs:string, $state as item()+) as item()+
 {
   let $count := count($state)
-  let $state := p:shift(126, $input, $state)                (: 'let' :)
-  let $state := p:lookahead1W(26, $input, $state)           (: S^WS | '$' | ('(' ':') :)
+  let $state := p:lookahead1(5, $input, $state)             (: '$' :)
   let $state := p:shift(31, $input, $state)                 (: '$' :)
   let $state := p:lookahead1W(130, $input, $state)          (: S^WS | QName^Token | ('(' ':') | 'ancestor' |
                                                                'ancestor-or-self' | 'and' | 'ascending' | 'attribute' |
@@ -7028,6 +6957,47 @@ declare function p:parse-LetClause($input as xs:string, $state as item()+) as it
   let $state := p:shift(51, $input, $state)                 (: ':=' :)
   let $state := p:lookahead1W(20, $input, $state)           (: EPSILON | S^WS | ('(' ':') :)
   let $state := p:parse-ExprSingle($input, $state)
+  return p:reduce($state, "LetBinding", $count)
+};
+
+(:~
+ : Parse the 1st loop of production LetClause (zero or more). Use
+ : tail recursion for iteratively updating the parser state.
+ :
+ : @param $input the input string.
+ : @param $state the parser state.
+ : @return the updated parser state.
+ :)
+declare function p:parse-LetClause-1($input as xs:string, $state as item()+) as item()+
+{
+  if ($state[$p:error]) then
+    $state
+  else
+    let $state := p:lookahead1W(94, $input, $state)         (: S^WS | ('(' ':') | ',' | 'for' | 'let' | 'order' |
+                                                               'return' | 'stable' | 'where' :)
+    return
+      if ($state[$p:l1] != 41) then                         (: ',' :)
+        $state
+      else
+        let $state := p:shift(41, $input, $state)           (: ',' :)
+        let $state := p:lookahead1W(20, $input, $state)     (: EPSILON | S^WS | ('(' ':') :)
+        let $state := p:parse-LetBinding($input, $state)
+        return p:parse-LetClause-1($input, $state)
+};
+
+(:~
+ : Parse LetClause.
+ :
+ : @param $input the input string.
+ : @param $state the parser state.
+ : @return the updated parser state.
+ :)
+declare function p:parse-LetClause($input as xs:string, $state as item()+) as item()+
+{
+  let $count := count($state)
+  let $state := p:shift(126, $input, $state)                (: 'let' :)
+  let $state := p:lookahead1W(20, $input, $state)           (: EPSILON | S^WS | ('(' ':') :)
+  let $state := p:parse-LetBinding($input, $state)
   let $state := p:parse-LetClause-1($input, $state)
   return p:reduce($state, "LetClause", $count)
 };
@@ -7080,81 +7050,16 @@ declare function p:parse-VarName($input as xs:string, $state as item()+) as item
 };
 
 (:~
- : Parse the 1st loop of production ForClause (zero or more). Use
- : tail recursion for iteratively updating the parser state.
+ : Parse ForBinding.
  :
  : @param $input the input string.
  : @param $state the parser state.
  : @return the updated parser state.
  :)
-declare function p:parse-ForClause-1($input as xs:string, $state as item()+) as item()+
-{
-  if ($state[$p:error]) then
-    $state
-  else
-    let $state := p:lookahead1W(94, $input, $state)         (: S^WS | ('(' ':') | ',' | 'for' | 'let' | 'order' |
-                                                               'return' | 'stable' | 'where' :)
-    return
-      if ($state[$p:l1] != 41) then                         (: ',' :)
-        $state
-      else
-        let $state := p:shift(41, $input, $state)           (: ',' :)
-        let $state := p:lookahead1W(26, $input, $state)     (: S^WS | '$' | ('(' ':') :)
-        let $state := p:shift(31, $input, $state)           (: '$' :)
-        let $state := p:lookahead1W(130, $input, $state)    (: S^WS | QName^Token | ('(' ':') | 'ancestor' |
-                                                               'ancestor-or-self' | 'and' | 'ascending' | 'attribute' |
-                                                               'case' | 'cast' | 'castable' | 'child' | 'collation' |
-                                                               'comment' | 'declare' | 'default' | 'descendant' |
-                                                               'descendant-or-self' | 'descending' | 'div' |
-                                                               'document' | 'document-node' | 'element' | 'else' |
-                                                               'empty' | 'empty-sequence' | 'eq' | 'every' | 'except' |
-                                                               'following' | 'following-sibling' | 'for' | 'ge' | 'gt' |
-                                                               'idiv' | 'if' | 'import' | 'instance' | 'intersect' |
-                                                               'is' | 'item' | 'le' | 'let' | 'lt' | 'mod' | 'module' |
-                                                               'ne' | 'node' | 'or' | 'order' | 'ordered' | 'parent' |
-                                                               'preceding' | 'preceding-sibling' |
-                                                               'processing-instruction' | 'return' | 'satisfies' |
-                                                               'schema-attribute' | 'schema-element' | 'self' | 'some' |
-                                                               'stable' | 'text' | 'to' | 'treat' | 'typeswitch' |
-                                                               'union' | 'unordered' | 'validate' | 'where' | 'xquery' :)
-        let $state := p:parse-VarName($input, $state)
-        let $state := p:lookahead1W(79, $input, $state)     (: S^WS | ('(' ':') | 'as' | 'at' | 'in' :)
-        let $state :=
-          if ($state[$p:error]) then
-            $state
-          else if ($state[$p:l1] = 72) then                 (: 'as' :)
-            let $state := p:parse-TypeDeclaration($input, $state)
-            return $state
-          else
-            $state
-        let $state := p:lookahead1W(66, $input, $state)     (: S^WS | ('(' ':') | 'at' | 'in' :)
-        let $state :=
-          if ($state[$p:error]) then
-            $state
-          else if ($state[$p:l1] = 74) then                 (: 'at' :)
-            let $state := p:parse-PositionalVar($input, $state)
-            return $state
-          else
-            $state
-        let $state := p:lookahead1W(38, $input, $state)     (: S^WS | ('(' ':') | 'in' :)
-        let $state := p:shift(116, $input, $state)          (: 'in' :)
-        let $state := p:lookahead1W(20, $input, $state)     (: EPSILON | S^WS | ('(' ':') :)
-        let $state := p:parse-ExprSingle($input, $state)
-        return p:parse-ForClause-1($input, $state)
-};
-
-(:~
- : Parse ForClause.
- :
- : @param $input the input string.
- : @param $state the parser state.
- : @return the updated parser state.
- :)
-declare function p:parse-ForClause($input as xs:string, $state as item()+) as item()+
+declare function p:parse-ForBinding($input as xs:string, $state as item()+) as item()+
 {
   let $count := count($state)
-  let $state := p:shift(107, $input, $state)                (: 'for' :)
-  let $state := p:lookahead1W(26, $input, $state)           (: S^WS | '$' | ('(' ':') :)
+  let $state := p:lookahead1(5, $input, $state)             (: '$' :)
   let $state := p:shift(31, $input, $state)                 (: '$' :)
   let $state := p:lookahead1W(130, $input, $state)          (: S^WS | QName^Token | ('(' ':') | 'ancestor' |
                                                                'ancestor-or-self' | 'and' | 'ascending' | 'attribute' |
@@ -7195,6 +7100,47 @@ declare function p:parse-ForClause($input as xs:string, $state as item()+) as it
   let $state := p:shift(116, $input, $state)                (: 'in' :)
   let $state := p:lookahead1W(20, $input, $state)           (: EPSILON | S^WS | ('(' ':') :)
   let $state := p:parse-ExprSingle($input, $state)
+  return p:reduce($state, "ForBinding", $count)
+};
+
+(:~
+ : Parse the 1st loop of production ForClause (zero or more). Use
+ : tail recursion for iteratively updating the parser state.
+ :
+ : @param $input the input string.
+ : @param $state the parser state.
+ : @return the updated parser state.
+ :)
+declare function p:parse-ForClause-1($input as xs:string, $state as item()+) as item()+
+{
+  if ($state[$p:error]) then
+    $state
+  else
+    let $state := p:lookahead1W(94, $input, $state)         (: S^WS | ('(' ':') | ',' | 'for' | 'let' | 'order' |
+                                                               'return' | 'stable' | 'where' :)
+    return
+      if ($state[$p:l1] != 41) then                         (: ',' :)
+        $state
+      else
+        let $state := p:shift(41, $input, $state)           (: ',' :)
+        let $state := p:lookahead1W(20, $input, $state)     (: EPSILON | S^WS | ('(' ':') :)
+        let $state := p:parse-ForBinding($input, $state)
+        return p:parse-ForClause-1($input, $state)
+};
+
+(:~
+ : Parse ForClause.
+ :
+ : @param $input the input string.
+ : @param $state the parser state.
+ : @return the updated parser state.
+ :)
+declare function p:parse-ForClause($input as xs:string, $state as item()+) as item()+
+{
+  let $count := count($state)
+  let $state := p:shift(107, $input, $state)                (: 'for' :)
+  let $state := p:lookahead1W(20, $input, $state)           (: EPSILON | S^WS | ('(' ':') :)
+  let $state := p:parse-ForBinding($input, $state)
   let $state := p:parse-ForClause-1($input, $state)
   return p:reduce($state, "ForClause", $count)
 };

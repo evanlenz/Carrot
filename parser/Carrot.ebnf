@@ -148,11 +148,21 @@ ExprSingle
 FLWORExpr
          ::= ( ForClause | LetClause )+ WhereClause? OrderByClause? 'return' ExprSingle
 ForClause
-         ::= 'for' '$' VarName TypeDeclaration? PositionalVar? 'in' ExprSingle ( ',' '$' VarName TypeDeclaration? PositionalVar? 'in' ExprSingle )*
+         ::= 'for' ForBinding ( ',' ForBinding )*
+
+/* Added for compiler convenience */
+ForBinding
+         ::= '$' VarName TypeDeclaration? PositionalVar? 'in' ExprSingle
+
 PositionalVar
          ::= 'at' '$' VarName
 LetClause
-         ::= 'let' '$' VarName TypeDeclaration? ':=' ExprSingle ( ',' '$' VarName TypeDeclaration? ':=' ExprSingle )*
+         ::= 'let' LetBinding ( ',' LetBinding )*
+
+/* Added for compiler convenience */
+LetBinding
+         ::= '$' VarName TypeDeclaration? ':=' ExprSingle
+
 WhereClause
          ::= 'where' ExprSingle
 OrderByClause
@@ -164,7 +174,12 @@ OrderSpec
 OrderModifier
          ::= ( 'ascending' | 'descending' )? ( 'empty' ( 'greatest' | 'least' ) )? ( 'collation' URILiteral )?
 QuantifiedExpr
-         ::= ( 'some' | 'every' ) '$' VarName TypeDeclaration? 'in' ExprSingle ( ',' '$' VarName TypeDeclaration? 'in' ExprSingle )* 'satisfies' ExprSingle
+         ::= ( 'some' | 'every' ) QuantifiedBinding ( ',' QuantifiedBinding )* 'satisfies' ExprSingle
+
+/* Added for compiler convenience */
+QuantifiedBinding
+         ::= '$' VarName TypeDeclaration? 'in' ExprSingle
+
 TypeswitchExpr
          ::= 'typeswitch' '(' Expr ')' CaseClause+ 'default' ( '$' VarName )? 'return' ExprSingle
 CaseClause
