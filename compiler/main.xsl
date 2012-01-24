@@ -7,7 +7,7 @@
 
   <xsl:include href="simplify.xsl"/>
   <xsl:include href="annotate.xsl"/>
-  <xsl:include href="declarations.xsl"/>
+  <xsl:include href="definitions.xsl"/>
   <xsl:include href="expressions.xsl"/>
   <xsl:include href="helpers.xsl"/>
 
