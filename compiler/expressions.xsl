@@ -6,9 +6,17 @@
   exclude-result-prefixes="out c">
 
   <!-- Convert a parsed Carrot expression to XPath -->
-  <xsl:function name="c:xpath">
+  <xsl:function name="c:xpath" as="xs:string">
     <xsl:param name="carrot-expr"/>
-    <xsl:apply-templates mode="xpath" select="$carrot-expr"/>
+    <xsl:variable name="xpath" as="xs:string">
+      <xsl:value-of>
+        <xsl:apply-templates mode="xpath" select="$carrot-expr"/>
+      </xsl:value-of>
+    </xsl:variable>
+    <!-- Attribute values are normalized, losing potentially useful whitespace in the Carrot source.
+         Ultimately, consider using (and first building) a framework that has tighter lexical control
+         over the XML text that's output. -->
+    <xsl:sequence select="normalize-space($xpath)"/>
   </xsl:function>
 
   <!-- Convert a parsed Carrot expression to an XSLT sequence constructor -->
@@ -83,10 +91,71 @@
   <xsl:template match="Expr/TOKEN"/> <!-- strip out commas in sequence constructor mode -->
 
   <xsl:template match="ExprSingle">
-    <xsl:variable name="xpath">
-      <xsl:apply-templates mode="xpath" select="."/>
-    </xsl:variable>
-    <out:sequence select="{$xpath}"/>
+    <out:sequence select="{c:xpath(.)}"/>
   </xsl:template>
+
+  <xsl:template match="FLWORExpr[not(OrderByClause) or c:has-simple-orderby(.)]">
+    <xsl:apply-templates mode="flwor" select="*[1]"/>
+  </xsl:template>
+
+          <!-- This may be overly restrictive, but better safe than sorry. -->
+          <!-- We'll only try to translate an OrderBy into <xsl:sort> if each of its order specs
+               refers only to the last-defined variable (bound by "for"). Otherwise, we punt and
+               defer to the more complicated translation (TBD).
+          -->
+          <xsl:function name="c:has-simple-orderby" as="xs:boolean">
+            <xsl:param name="flwor"/>
+            <xsl:variable name="orderby" select="$flwor/OrderByClause"/>
+            <xsl:sequence select="every $spec in $orderby/OrderSpecList/OrderSpec satisfies
+                                  (count($spec//VarRef) eq 1 and
+                                   $spec//VarRef/VarName eq $orderby/preceding-sibling::ForClause[1]/ForBinding[last()]/VarName
+                                  )"/>
+          </xsl:function>
+  
+
+          <xsl:template mode="flwor" match="LetClause">
+            <xsl:apply-templates mode="#current" select="LetBinding"/>
+
+            <!-- This isn't right yet. -->
+            <xsl:apply-templates mode="flwor" select="following-sibling::*[self::LetClause|self::ForClause][1]"/>
+          </xsl:template>
+
+                  <xsl:template mode="flwor" match="LetBinding">
+                    <out:variable name="..."/>
+                  </xsl:template>
+
+
+          <xsl:template mode="flwor" match="ForClause">
+            <xsl:apply-templates mode="flwor" select="ForBinding[1]"/>
+          </xsl:template>
+
+                  <xsl:template mode="flwor" match="ForBinding">
+                    <out:for-each select="{c:xpath(ExprSingle)}">
+                      <!-- Consider making this more idiomatic by only binding a variable when necessary
+                           (replacing variable references with "." when possible). -->
+                      <out:variable name="{VarName}" select=".">
+                        <xsl:apply-templates select="TypeDeclaration"/>
+                      </out:variable>
+                      <xsl:apply-templates select="PositionalVar"/>
+                      <xsl:apply-templates mode="for-each-content" select="."/>
+                    </out:for-each>
+                  </xsl:template>
+
+                          <xsl:template mode="for-each-content" match="ForBinding">
+                            <xsl:apply-templates mode="flwor" select="following-sibling::ForBinding[1]"/>
+                          </xsl:template>
+
+                          <xsl:template mode="for-each-content" match="ForBinding[last()]">
+                            <!-- This isn't right yet. -->
+                            <xsl:apply-templates mode="flwor"
+                                                 select="../following-sibling::*[self::LetClause|self::ForClause][1]"/>
+                          </xsl:template>
+
+  <!-- For OrderBy, we may need to use <xsl:perform-sort/> -->
+
+
+                          <xsl:template match="PositionalVar">
+                            <out:variable name="{VarName}" select="position()"/>
+                          </xsl:template>
 
 </xsl:stylesheet>

@@ -11,13 +11,29 @@
   <xsl:include href="expressions.xsl"/>
   <xsl:include href="helpers.xsl"/>
 
-  <xsl:output indent="no"/>
+  <!-- TODO: Replace this with a more sophisticated indentation algorithm?
+             Ensure the indentation doesn't change the meaning of the program,
+             e.g., by adding whitespace to <xsl:text> or other places where
+             space is preserved (due to xml:space="preserve" in the stylesheet). -->
+  <xsl:output indent="yes"/>
+
+  <xsl:namespace-alias stylesheet-prefix="out" result-prefix="xsl"/>
+
+  <!--
+  <xsl:strip-space elements="*"/>
+
+  <xsl:template match="TOKEN">
+    <xsl:text> </xsl:text>
+    <xsl:apply-templates/>
+    <xsl:text> </xsl:text>
+  </xsl:template>
+  -->
 
   <xsl:param name="DEBUG"/>
 
   <xsl:template match="/">
     <xsl:variable name="simplified">
-      <xsl:apply-templates mode="simplify"/>
+      <xsl:apply-templates mode="simplify" select="."/>
     </xsl:variable>
     <xsl:variable name="annotated">
       <xsl:apply-templates mode="annotate" select="$simplified"/>
@@ -44,8 +60,6 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
-  <xsl:namespace-alias stylesheet-prefix="out" result-prefix="xsl"/>
 
   <xsl:template match="/Carrot/CarrotModule">
     <xsl:comment>

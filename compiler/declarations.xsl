@@ -24,9 +24,7 @@
         </xsl:template>
 
         <xsl:template mode="variable-value" match="c:XPATH">
-          <xsl:attribute name="select">
-            <xsl:apply-templates mode="xpath"/>
-          </xsl:attribute>
+          <xsl:attribute name="select" select="c:xpath(.)"/>
         </xsl:template>
 
         <xsl:template mode="variable-value" match="VarDecl/c:SEQUENCE_CONSTRUCTOR
@@ -56,7 +54,7 @@
   <xsl:template match="RuleDecl">
     <out:template match="{c:xpath(Pattern)}">
       <xsl:apply-templates select="ModeName[1],
-                                   (IntegerLiteral | DecimalLiteral),
+                                   Priority,
                                    RuleParamList/ParamWithDefault"/>
       <xsl:apply-templates select="Expr"/>
     </out:template>
@@ -75,8 +73,7 @@
           </xsl:template>
 
   
-          <xsl:template match="RuleDecl/IntegerLiteral
-                             | RuleDecl/DecimalLiteral">
+          <xsl:template match="RuleDecl/Priority">
             <xsl:attribute name="priority" select="."/>
           </xsl:template>
 
