@@ -1,7 +1,7 @@
 xquery version "1.0" encoding "UTF-8";
 
-(: This file was generated on Sat Jan 14, 2012 07:34 by REx v5.10 which is Copyright (c) 1979-2011 by Gunther Rademacher <grd@gmx.net> :)
-(: REx command line: Carrot.ebnf -xquery -tree :)
+(: This file was generated on Tue Jan 24, 2012 21:43 by REx v5.11 which is Copyright (c) 1979-2012 by Gunther Rademacher <grd@gmx.net> :)
+(: REx command line: Carrot.ebnf -tree -xquery :)
 
 (:~
  : The parser that was generated for the Carrot grammar.
@@ -1855,10 +1855,10 @@ declare function p:shift($code as xs:integer, $input as xs:string, $state as ite
     $state
   else if ($state[$p:l1] = $code) then
   (
-    $state[position() >= $p:l1 and position() <= $p:e3],
+    subsequence($state, $p:l1, $p:e3 - $p:l1 + 1),
     0,
     $state[$p:e3],
-    $state[position() >= $p:e3],
+    subsequence($state, $p:e3),
     if ($state[$p:e0] != $state[$p:b1]) then
       text {substring($input, $state[$p:e0], $state[$p:b1] - $state[$p:e0])}
     else
@@ -1867,13 +1867,13 @@ declare function p:shift($code as xs:integer, $input as xs:string, $state as ite
     let $content := substring($input, $state[$p:b1], $state[$p:e1] - $state[$p:b1])
     return
       if (starts-with($name, "'")) then
-		    element TOKEN {$content}
-	    else
-	      element {$name} {$content}
+        element TOKEN {$content}
+      else
+        element {$name} {$content}
   )
   else
   (
-    $state[position() < $p:error],
+    subsequence($state, 1, $p:error - 1),
     element error
     {
       attribute b {$state[$p:b1]},
@@ -1883,7 +1883,7 @@ declare function p:shift($code as xs:integer, $input as xs:string, $state as ite
       else
         (attribute o {$state[$p:l1]}, attribute x {$code})
     },
-    $state[position() > $p:error]
+    subsequence($state, $p:error + 1)
   )
 };
 
@@ -1929,10 +1929,10 @@ declare function p:lookahead1W($set as xs:integer, $input as xs:string, $state a
     return
     (
       $match[1],
-      $state[position() > $p:lk and position() < $p:l1],
+      subsequence($state, $p:lk + 1, $p:l1 - $p:lk - 1),
       $match,
       0, $match[3], 0,
-      $state[position() > $p:e2]
+      subsequence($state, $p:e2 + 1)
     )
 };
 
@@ -1948,16 +1948,16 @@ declare function p:lookahead2W($set as xs:integer, $input as xs:string, $state a
 {
   let $match :=
     if ($state[$p:l2] != 0) then
-      $state[position() >= $p:l2 and position() <= $p:e2]
+      subsequence($state, $p:l2, $p:e2 - $p:l2 + 1)
     else
       p:matchW($input, $state[$p:b2], $set)
   return
   (
     $match[1] * 256 + $state[$p:l1],
-    $state[position() > $p:lk and position() < $p:l2],
+    subsequence($state, $p:lk + 1, $p:l2 - $p:lk - 1),
     $match,
     0, $match[3], 0,
-    $state[position() > $p:e3]
+    subsequence($state, $p:e3 + 1)
   )
 };
 
@@ -1973,15 +1973,15 @@ declare function p:lookahead3W($set as xs:integer, $input as xs:string, $state a
 {
   let $match :=
     if ($state[$p:l3] != 0) then
-      $state[position() >= $p:l3 and position() <= $p:e3]
+      subsequence($state, $p:l3, $p:e3 - $p:l3 + 1)
     else
       p:matchW($input, $state[$p:b3], $set)
   return
   (
     $match[1] * 65536 + $state[$p:lk],
-    $state[position() > $p:lk and position() < $p:l3],
+    subsequence($state, $p:lk + 1, $p:l3 - $p:lk - 1),
     $match,
-    $state[position() > $p:e3]
+    subsequence($state, $p:e3 + 1)
   )
 };
 
@@ -2002,10 +2002,10 @@ declare function p:lookahead1($set as xs:integer, $input as xs:string, $state as
     return
     (
       $match[1],
-      $state[position() > $p:lk and position() < $p:l1],
+      subsequence($state, $p:lk + 1, $p:l1 - $p:lk - 1),
       $match,
       0, $match[3], 0,
-      $state[position() > $p:e2]
+      subsequence($state, $p:e2 + 1)
     )
 };
 
@@ -2020,10 +2020,10 @@ declare function p:lookahead1($set as xs:integer, $input as xs:string, $state as
  :)
 declare function p:reduce($state as item()+, $name as xs:string, $count as xs:integer) as item()+
 {
-  $state[position() <= $count],
+  subsequence($state, 1, $count),
   element {$name}
   {
-    $state[position() > $count]
+    subsequence($state, $count + 1)
   }
 };
 
@@ -2200,6 +2200,28 @@ declare function p:parse-KeyValuePairs($input as xs:string, $state as item()+) a
   let $state := p:parse-KeyValuePairs-1($input, $state)
   let $state := p:shift(25, $input, $state)                 (: EOF :)
   return p:reduce($state, "KeyValuePairs", $count)
+};
+
+(:~
+ : Parse Priority.
+ :
+ : @param $input the input string.
+ : @param $state the parser state.
+ : @return the updated parser state.
+ :)
+declare function p:parse-Priority($input as xs:string, $state as item()+) as item()+
+{
+  let $count := count($state)
+  let $state :=
+    if ($state[$p:l1] = 3) then                             (: IntegerLiteral :)
+      let $state := p:shift(3, $input, $state)              (: IntegerLiteral :)
+      return $state
+    else if ($state[$p:error]) then
+      $state
+    else
+      let $state := p:shift(4, $input, $state)              (: DecimalLiteral :)
+      return $state
+  return p:reduce($state, "Priority", $count)
 };
 
 (:~
@@ -2453,7 +2475,7 @@ declare function p:parse-PatternStep($input as xs:string, $state as item()+) as 
                                                                '|' :)
       return $state
     else
-      ($state[$p:l1], $state[position() > $p:lk])
+      ($state[$p:l1], subsequence($state, $p:lk + 1))
   let $state :=
     if ($state[$p:error]) then
       $state
@@ -2717,15 +2739,7 @@ declare function p:parse-RuleDecl($input as xs:string, $state as item()+) as ite
     if ($state[$p:error]) then
       $state
     else if ($state[$p:l1] != 51) then                      (: ':=' :)
-      let $state :=
-        if ($state[$p:l1] = 3) then                         (: IntegerLiteral :)
-          let $state := p:shift(3, $input, $state)          (: IntegerLiteral :)
-          return $state
-        else if ($state[$p:error]) then
-          $state
-        else
-          let $state := p:shift(4, $input, $state)          (: DecimalLiteral :)
-          return $state
+      let $state := p:parse-Priority($input, $state)
       return $state
     else
       $state
@@ -3205,7 +3219,7 @@ declare function p:parse-ForwardStep($input as xs:string, $state as item()+) as 
                                                                'to' | 'treat' | 'union' | 'where' | '|' | '}' :)
       return $state
     else
-      ($state[$p:l1], $state[position() > $p:lk])
+      ($state[$p:l1], subsequence($state, $p:lk + 1))
   let $state :=
     if ($state[$p:lk] = 12875                               (: 'attribute' '::' :)
      or $state[$p:lk] = 12882                               (: 'child' '::' :)
@@ -3309,7 +3323,7 @@ declare function p:parse-NodeTest($input as xs:string, $state as item()+) as ite
                                                                'to' | 'treat' | 'union' | 'where' | '|' | '}' :)
       return $state
     else
-      ($state[$p:l1], $state[position() > $p:lk])
+      ($state[$p:l1], subsequence($state, $p:lk + 1))
   let $state :=
     if ($state[$p:lk] = 8523                                (: 'attribute' '(' :)
      or $state[$p:lk] = 8532                                (: 'comment' '(' :)
@@ -3422,7 +3436,7 @@ declare function p:parse-AxisStep($input as xs:string, $state as item()+) as ite
                                                                'to' | 'treat' | 'union' | 'where' | '|' | '}' :)
       return $state
     else
-      ($state[$p:l1], $state[position() > $p:lk])
+      ($state[$p:l1], subsequence($state, $p:lk + 1))
   let $state :=
     if ($state[$p:lk] = 45                                  (: '..' :)
      or $state[$p:lk] = 12869                               (: 'ancestor' '::' :)
@@ -4873,7 +4887,7 @@ declare function p:parse-PrimaryExpr($input as xs:string, $state as item()+) as 
       let $state := p:lookahead2W(55, $input, $state)       (: S^WS | '(' | ('(' ':') | '{' :)
       return $state
     else
-      ($state[$p:l1], $state[position() > $p:lk])
+      ($state[$p:l1], subsequence($state, $p:lk + 1))
   let $state :=
     if ($state[$p:lk] = 3                                   (: IntegerLiteral :)
      or $state[$p:lk] = 4                                   (: DecimalLiteral :)
@@ -5398,7 +5412,7 @@ declare function p:parse-StepExpr($input as xs:string, $state as item()+) as ite
                                                                'to' | 'treat' | 'union' | 'where' | '|' | '}' :)
       return $state
     else
-      ($state[$p:l1], $state[position() > $p:lk])
+      ($state[$p:l1], subsequence($state, $p:lk + 1))
   let $state :=
     if ($state[$p:lk] = 3                                   (: IntegerLiteral :)
      or $state[$p:lk] = 4                                   (: DecimalLiteral :)
@@ -5863,7 +5877,7 @@ declare function p:parse-ValueExpr($input as xs:string, $state as item()+) as it
                                                                'where' | '{' | '|' | '}' :)
       return $state
     else
-      ($state[$p:l1], $state[position() > $p:lk])
+      ($state[$p:l1], subsequence($state, $p:lk + 1))
   let $state :=
     if ($state[$p:lk] = 31652                               (: 'validate' 'lax' :)
      or $state[$p:lk] = 39588                               (: 'validate' 'strict' :)
@@ -7270,7 +7284,7 @@ declare function p:parse-ExprSingle($input as xs:string, $state as item()+) as i
                                                                'to' | 'treat' | 'union' | 'where' | '|' | '}' :)
       return $state
     else
-      ($state[$p:l1], $state[position() > $p:lk])
+      ($state[$p:l1], subsequence($state, $p:lk + 1))
   let $state :=
     if ($state[$p:lk] = 8043                                (: 'for' '$' :)
      or $state[$p:lk] = 8062) then                          (: 'let' '$' :)
@@ -7907,7 +7921,7 @@ declare function p:parse-ItemType($input as xs:string, $state as item()+) as ite
                                                                'union' | 'where' | '|' | '}' :)
       return $state
     else
-      ($state[$p:l1], $state[position() > $p:lk])
+      ($state[$p:l1], subsequence($state, $p:lk + 1))
   let $state :=
     if ($state[$p:lk] = 8523                                (: 'attribute' '(' :)
      or $state[$p:lk] = 8532                                (: 'comment' '(' :)
@@ -7974,7 +7988,7 @@ declare function p:parse-SequenceType($input as xs:string, $state as item()+) as
                                                                'union' | 'where' | '|' | '}' :)
       return $state
     else
-      ($state[$p:l1], $state[position() > $p:lk])
+      ($state[$p:l1], subsequence($state, $p:lk + 1))
   let $state :=
     if ($state[$p:lk] = 8547) then                          (: 'empty-sequence' '(' :)
       let $state := p:shift(99, $input, $state)             (: 'empty-sequence' :)
@@ -8557,7 +8571,7 @@ declare function p:parse-CarrotModule-1($input as xs:string, $state as item()+) 
         let $state := p:lookahead2W(54, $input, $state)     (: S^WS | '(' | ('(' ':') | 'namespace' :)
         return $state
       else
-        ($state[$p:l1], $state[position() > $p:lk])
+        ($state[$p:l1], subsequence($state, $p:lk + 1))
     return
       if ($state[$p:lk] != 33368) then                      (: 'declare' 'namespace' :)
         $state
@@ -8662,7 +8676,7 @@ declare function p:parse-Carrot($s as xs:string) as item()*
     if ($error) then
       element ERROR {$error/@*, p:error-message($s, $error)}
     else
-      $state[position() >= $p:result]
+      subsequence($state, $p:result)
 };
 
 (:~
@@ -8679,7 +8693,7 @@ declare function p:parse-KeyValuePairs($s as xs:string) as item()*
     if ($error) then
       element ERROR {$error/@*, p:error-message($s, $error)}
     else
-      $state[position() >= $p:result]
+      subsequence($state, $p:result)
 };
 
 (: End :)

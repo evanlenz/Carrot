@@ -4,6 +4,7 @@
 Carrot   ::= CarrotModule EOF
 CarrotModule
          ::= (NamespaceDecl Separator)*
+             /* other top-level declarations will go here (import, etc.) */
              ((VarDecl | FunctionDecl | RuleDecl) Separator)*
 
 
@@ -93,8 +94,9 @@ FunctionDecl
 
 
 /* Carrot-specific */
-RuleDecl ::= '^' (ModeName ('|' ModeName)* )? '(' Pattern (';' RuleParamList)? ')' (IntegerLiteral | DecimalLiteral)? ':=' Expr
+RuleDecl ::= '^' (ModeName ('|' ModeName)* )? '(' Pattern (';' RuleParamList)? ')' Priority? ':=' Expr
 ModeName ::= (QName | '#current' | '#default')
+Priority ::= (IntegerLiteral | DecimalLiteral)
 RuleParamList
          ::= ParamWithDefault (',' ParamWithDefault)*
 ParamWithDefault
