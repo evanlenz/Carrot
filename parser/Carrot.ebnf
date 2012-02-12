@@ -3,10 +3,16 @@
 /* Top-level Carrot module */
 Carrot   ::= CarrotModule EOF
 CarrotModule
-         ::= (NamespaceDecl Separator)*
-             /* other top-level declarations will go here (import, etc.) */
+         ::= ((NamespaceDecl | IncludeDecl | ImportDecl | ParamDef) Separator)*
              ((VarDecl | FunctionDecl | RuleDecl) Separator)*
 
+NamespaceDecl
+         ::= 'namespace' NCName '=' URILiteral
+IncludeDecl
+         ::= 'include' URILiteral
+ImportDecl
+         ::= 'import' URILiteral
+ParamDef ::= 'param' Param (':=' Expr)?
 
 /* Top-level XQuery productions not applicable to Carrot (except for Separator) */
 /*
@@ -35,9 +41,9 @@ Import   ::= SchemaImport
 Separator
          ::= ';'
 
+/*
 NamespaceDecl
          ::= 'declare' 'namespace' NCName '=' URILiteral
-/*
 BoundarySpaceDecl
          ::= 'declare' 'boundary-space' ( 'preserve' | 'strip' )
 DefaultNamespaceDecl
@@ -486,6 +492,7 @@ FunctionName
            | 'gt'
            | 'idiv'
            | 'import'
+           | 'include'
            | 'instance'
            | 'intersect'
            | 'is'
@@ -494,10 +501,12 @@ FunctionName
            | 'lt'
            | 'mod'
            | 'module'
+           | 'namespace'
            | 'ne'
            | 'or'
            | 'order'
            | 'ordered'
+           | 'param'
            | 'parent'
            | 'preceding'
            | 'preceding-sibling'
@@ -978,10 +987,10 @@ NonNCNameChar
          ::= $
            | ( Char - NCNameChar )
 NonNCNameChar
-          \\ IntegerLiteral DecimalLiteral DoubleLiteral QName^Token NCName^Token 'ancestor' 'ancestor-or-self' 'and' 'as' 'ascending' 'at' 'attribute' 'base-uri' 'boundary-space' 'by' 'case' 'cast' 'castable' 'child' 'collation' 'comment' 'construction' 'copy-namespaces' 'declare' 'default' 'descendant' 'descendant-or-self' 'descending' 'div' 'document' 'document-node' 'element' 'else' 'empty' 'empty-sequence' 'encoding' 'eq' 'every' 'except' 'external' 'following' 'following-sibling' 'for' 'function' 'ge' 'greatest' 'gt' 'idiv' 'if' 'import' 'in' 'inherit' 'instance' 'intersect' 'is' 'item' 'lax' 'le' 'least' 'let' 'lt' 'mod' 'module' 'namespace' 'ne' 'node' 'no-inherit' 'no-preserve' 'of' 'option' 'or' 'order' 'ordered' 'ordering' 'parent' 'preceding' 'preceding-sibling' 'preserve' 'processing-instruction' 'return' 'satisfies' 'schema' 'schema-attribute' 'schema-element' 'self' 'some' 'stable' 'strict' 'strip' 'text' 'then' 'to' 'treat' 'typeswitch' 'union' 'unordered' 'validate' 'variable' 'version' 'where' 'xquery'
+          \\ IntegerLiteral DecimalLiteral DoubleLiteral QName^Token NCName^Token 'ancestor' 'ancestor-or-self' 'and' 'as' 'ascending' 'at' 'attribute' 'base-uri' 'boundary-space' 'by' 'case' 'cast' 'castable' 'child' 'collation' 'comment' 'construction' 'copy-namespaces' 'declare' 'default' 'descendant' 'descendant-or-self' 'descending' 'div' 'document' 'document-node' 'element' 'else' 'empty' 'empty-sequence' 'encoding' 'eq' 'every' 'except' 'external' 'following' 'following-sibling' 'for' 'function' 'ge' 'greatest' 'gt' 'idiv' 'if' 'import' 'include' 'in' 'inherit' 'instance' 'intersect' 'is' 'item' 'lax' 'le' 'least' 'let' 'lt' 'mod' 'module' 'namespace' 'ne' 'node' 'no-inherit' 'no-preserve' 'of' 'option' 'or' 'order' 'ordered' 'ordering' 'param' 'parent' 'preceding' 'preceding-sibling' 'preserve' 'processing-instruction' 'return' 'satisfies' 'schema' 'schema-attribute' 'schema-element' 'self' 'some' 'stable' 'strict' 'strip' 'text' 'then' 'to' 'treat' 'typeswitch' 'union' 'unordered' 'validate' 'variable' 'version' 'where' 'xquery'
 '+'       << '+'^OccurrenceIndicator
 '*'       << '*'^OccurrenceIndicator Wildcard
 QName^Token
-          << 'ancestor' 'ancestor-or-self' 'and' 'ascending' 'attribute' 'case' 'cast' 'castable' 'child' 'collation' 'comment' 'declare' 'default' 'descendant' 'descendant-or-self' 'descending' 'div' 'document' 'document-node' 'element' 'else' 'empty' 'empty-sequence' 'eq' 'every' 'except' 'following' 'following-sibling' 'for' 'ge' 'gt' 'idiv' 'if' 'import' 'instance' 'intersect' 'is' 'item' 'le' 'let' 'lt' 'mod' 'module' 'ne' 'node' 'or' 'order' 'ordered' 'parent' 'preceding' 'preceding-sibling' 'processing-instruction' 'return' 'satisfies' 'schema-attribute' 'schema-element' 'self' 'some' 'stable' 'text' 'to' 'treat' 'typeswitch' 'union' 'unordered' 'validate' 'where' 'xquery'
+          << 'ancestor' 'ancestor-or-self' 'and' 'ascending' 'attribute' 'case' 'cast' 'castable' 'child' 'collation' 'comment' 'declare' 'default' 'descendant' 'descendant-or-self' 'descending' 'div' 'document' 'document-node' 'element' 'else' 'empty' 'empty-sequence' 'eq' 'every' 'except' 'following' 'following-sibling' 'for' 'ge' 'gt' 'idiv' 'if' 'import' 'include' 'instance' 'intersect' 'is' 'item' 'le' 'let' 'lt' 'mod' 'module' 'ne' 'namespace' 'node' 'or' 'order' 'ordered' 'param' 'parent' 'preceding' 'preceding-sibling' 'processing-instruction' 'return' 'satisfies' 'schema-attribute' 'schema-element' 'self' 'some' 'stable' 'text' 'to' 'treat' 'typeswitch' 'union' 'unordered' 'validate' 'where' 'xquery'
 NCName^Token
           << 'and' 'ascending' 'case' 'cast' 'castable' 'collation' 'default' 'descending' 'div' 'else' 'empty' 'eq' 'except' 'for' 'ge' 'gt' 'idiv' 'instance' 'intersect' 'is' 'le' 'let' 'lt' 'mod' 'ne' 'or' 'order' 'return' 'satisfies' 'stable' 'to' 'treat' 'union' 'where'
