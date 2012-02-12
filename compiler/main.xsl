@@ -15,19 +15,23 @@
 
   <xsl:param name="DEBUG"/>
 
+  <xsl:variable name="simplified">
+    <xsl:apply-templates mode="simplify" select="/"/>
+  </xsl:variable>
+  <xsl:variable name="annotated">
+    <xsl:apply-templates mode="annotate" select="$simplified"/>
+  </xsl:variable>
+  <xsl:variable name="compiled">
+    <xsl:apply-templates select="$annotated/*"/>
+  </xsl:variable>
+
   <xsl:template match="/">
-    <xsl:variable name="simplified">
-      <xsl:apply-templates mode="simplify" select="."/>
-    </xsl:variable>
-    <xsl:variable name="annotated">
-      <xsl:apply-templates mode="annotate" select="$simplified"/>
-    </xsl:variable>
-    <xsl:variable name="compiled">
-      <xsl:apply-templates select="$annotated/*"/>
-    </xsl:variable>
     <xsl:choose>
       <xsl:when test="$DEBUG">
         <result>
+          <ORIGINAL>
+            <xsl:copy-of select="."/>
+          </ORIGINAL>
           <SIMPLIFIED>
             <xsl:copy-of select="$simplified"/>
           </SIMPLIFIED>
