@@ -2,32 +2,16 @@
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:out="dummy"
-  xmlns:c="http://evanlenz.net/carrot"
-  exclude-result-prefixes="out c">
+  exclude-result-prefixes="out">
 
   <xsl:include href="simplify.xsl"/>
   <xsl:include href="annotate.xsl"/>
   <xsl:include href="definitions.xsl"/>
   <xsl:include href="expressions.xsl"/>
   <xsl:include href="helpers.xsl"/>
-
-  <!-- TODO: Replace this with a more sophisticated indentation algorithm?
-             Ensure the indentation doesn't change the meaning of the program,
-             e.g., by adding whitespace to <xsl:text> or other places where
-             space is preserved (due to xml:space="preserve" in the stylesheet). -->
-  <xsl:output indent="yes"/>
+  <xsl:include href="output-format.xsl"/>
 
   <xsl:namespace-alias stylesheet-prefix="out" result-prefix="xsl"/>
-
-  <!--
-  <xsl:strip-space elements="*"/>
-
-  <xsl:template match="TOKEN">
-    <xsl:text> </xsl:text>
-    <xsl:apply-templates/>
-    <xsl:text> </xsl:text>
-  </xsl:template>
-  -->
 
   <xsl:param name="DEBUG"/>
 
@@ -72,7 +56,5 @@
       <xsl:apply-templates mode="helper" select="."/>
     </out:stylesheet>
   </xsl:template>
-
-          <xsl:template mode="helper" match="text()"/>
 
 </xsl:stylesheet>

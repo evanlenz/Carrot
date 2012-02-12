@@ -5,6 +5,8 @@
   xmlns:c="http://evanlenz.net/carrot"
   exclude-result-prefixes="out c">
 
+  <xsl:template mode="helper" match="text()"/>
+
   <!-- Delegate non-XPath expressions to stylesheet helper functions -->
   <xsl:template mode="helper" match="c:SEQUENCE_CONSTRUCTOR[@needs-helper]">
     <out:function name="{c:helper-name(.)}">
